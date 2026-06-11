@@ -71,6 +71,9 @@ the expensive C3PRICING fetch (see Rule 2).
 - **Minimal ticket shape** (both create cases): title, body, link back to the C3PRICING
   ticket, assignee = Charlie. **Do NOT** infer issue type / priority / epic / labels.
   → 🔒 **Approval gate:** show the draft, create only on approval.
+- **Right after creating** the ticket (and assigning Charlie), transition it to
+  **"In Progress"** — look up the matching transition with `getTransitionsForJiraIssue`,
+  then `transitionJiraIssue`. No extra approval needed; it's part of the approved creation.
 
 ### Step 3 — Populate the APO body
 - Fetch the **last 10 APO ticket bodies**, infer the house format from them, and write the
@@ -117,6 +120,8 @@ the expensive C3PRICING fetch (see Rule 2).
   C3PRICING tickets). Include the attribution postfix.
 - → 🔒 **Approval gate:** show the full PR (title + body + label + base) and open only on
   approval.
+- **Once the draft PR is open**, transition the APO ticket to **"In Review"** (same
+  mechanism: `getTransitionsForJiraIssue` → `transitionJiraIssue`).
 
 ## Environment access
 
