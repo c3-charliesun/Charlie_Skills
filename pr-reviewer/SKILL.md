@@ -18,6 +18,7 @@ description: >-
 - **ALWAYS output the Queue Status Table (Step 1) before drafting any review** — on every fresh start, wakeup-with-activity, and re-invocation. Auto-proceed skips only the confirmation *wait*, never the table. Drafting first is a hard failure.
 - **ALWAYS write detected High/Medium conflicts into the draft review comment** as a `### Merge conflict heads-up` section (Step 3). A conflict detected but not written into the comment is a hard failure.
 - **ALWAYS validate C3 platform findings with MCP tools** (`search_c3_documentation`, fallback `ask_c3_question`) before flagging — never from memory alone. Cite the docs in the finding.
+- **NEVER end a cycle silently.** Every cycle ends with either a draft awaiting Charlie's reply, or an explicit status line (even just "no PRs found") plus confirmation that the next scan is scheduled.
 - **Skip PRs authored by `c3-charliesun`** entirely — don't list them.
 
 ## Lifecycle & Auto-Loop
@@ -25,7 +26,8 @@ description: >-
 | State | Behavior |
 |-------|----------|
 | **Fresh start / wakeup with new activity / manual "check again"** | Triage → print Queue Status Table → state which PR is first and why → immediately review it (no confirmation wait) |
-| **Cycle complete** (all queued PRs drafted & submitted, or none) | `ScheduleWakeup(delaySeconds: 1800, reason: "checking c3amdpo for new review requests", prompt: "<<autonomous-loop-dynamic>>")` |
+| **Empty queue** (triage finds nothing needing review) | Output: `"No open PRs requesting your review in c3amdpo. Next scan in 30 min."` (list any watching-only PRs in one line if present) → schedule wakeup → stop |
+| **Cycle complete** (all queued PRs drafted & submitted) | Output: `"Cycle complete — <n> review(s) submitted. Next scan in 30 min."` → `ScheduleWakeup(delaySeconds: 1800, reason: "checking c3amdpo for new review requests", prompt: "<<autonomous-loop-dynamic>>")` |
 | **Draft pending** (Charlie hasn't replied) | Do NOT scan or reschedule. Output: `"Waiting for your reply on the draft review for PR #<N>. Scan paused."` Stop. |
 | **Wakeup — no new activity** | Output: `"No new PRs or changes since last check. Next scan in 30 min."` Reschedule, stop. |
 
