@@ -1,9 +1,10 @@
 ---
 name: amd-ticket-pipeline
 description: >-
-  Drive an AMD pricing ticket (C3PRICING / APO) from intake to a draft PR — find or create
+  Drive an AMD pricing ticket (C3PRICING / APO) from intake to an open PR — find or create
   the APO mirror, populate it, present a run plan, implement on a worktree, build + lint +
-  code-review, push, screenshot-verify frontend-only changes, and open a draft PR. Use when Charlie starts
+  code-review, push, screenshot-verify frontend-only changes, and open a PR (no reviewers,
+  "don't merge" label). Use when Charlie starts
   work on a C3PRICING or APO ticket in the c3amdpo repo. Invoke with either a C3PRICING id
   (e.g. C3PRICING-339) or an APO id (e.g. APO-1199).
 ---
@@ -11,7 +12,7 @@ description: >-
 # AMD ticket → PR pipeline
 
 Single-invocation pipeline for the repeating c3amdpo workflow: intake → APO mirror → plan → implement →
-validate → draft PR. Pause at every 🔒 gate for explicit approval; track state in `bob-tasks` so a ticket
+validate → open PR. Pause at every 🔒 gate for explicit approval; track state in `bob-tasks` so a ticket
 resumes across sessions. Invoke with either id, e.g. `amd-ticket-pipeline C3PRICING-339` or `APO-1199`.
 
 ## Hard rules
@@ -76,8 +77,8 @@ screen(s), and capture screenshots (before/after where a baseline is easy), veri
 actual pixels. **Good** → embed the screenshots in the PR body (Step 7). **Not good** → fix the code and
 re-run Step 6. Stop the preview server when done.
 
-**7. Open the PR — then stop.** Draft PR, no reviewers, **"don't merge"** label, assignee = Charlie,
-base = `develop`. Body: infer format from Charlie's recent PRs (what / why + links to both tickets +
+**7. Open the PR — then stop.** Regular (non-draft) PR, no reviewers, **"don't merge"** label,
+assignee = Charlie, base = `develop`. Body: infer format from Charlie's recent PRs (what / why + links to both tickets +
 attribution). 🔒 Show title/body/label/base, open on approval. For a frontend-only PR, embed the Step 6b
 screenshots **via Playwright** — `gh` can't attach local images, so after the PR is open, drive the
 `browser` agent to it, edit the description, drag/drop the screenshot files into the GitHub editor (it
