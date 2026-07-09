@@ -85,6 +85,56 @@ If no meaningful browser path exists for a backend-only ticket, use the browser 
 API docs view, or other visible proof. If there is still no meaningful visual proof, block and ask
 Charlie rather than opening an unverified PR.
 
+## Attaching Screenshots To PRs
+
+Preferred method for AICodingGym private-repo PRs:
+
+1. Capture screenshots locally with Playwright into `/private/tmp`, e.g.
+   `/private/tmp/kan123-feature-proof.png`.
+2. Copy each final proof screenshot into the PR branch under `docs/screenshots/`, using a stable
+   ticket-scoped filename:
+
+   ```bash
+   mkdir -p docs/screenshots
+   cp /private/tmp/kan123-feature-proof.png docs/screenshots/kan123-feature-proof.png
+   ```
+
+3. Because this adds a commit, rerun the required pre-push gate first:
+
+   ```bash
+   npm run lint
+   npm test
+   cd backend && npm test
+   ```
+
+4. Commit and push the screenshot with the required Jira commit format, then get the pushed commit SHA:
+
+   ```bash
+   git add docs/screenshots/kan123-feature-proof.png
+   git commit -m "KAN-123: Attach validation screenshot"
+   git push
+   git rev-parse HEAD
+   ```
+
+5. Replace the PR `## Screenshots` section with commit-pinned GitHub blob image markdown:
+
+   ```markdown
+   ## Screenshots
+   ![Short proof description](https://github.com/AISmithLab/AICodingGym/blob/<commit-sha>/docs/screenshots/kan123-feature-proof.png?raw=true)
+   ```
+
+6. Update the PR body with `gh pr edit --body-file <file>` under the required GitHub account switch.
+
+Important details:
+
+- Use `https://github.com/AISmithLab/AICodingGym/blob/<commit-sha>/...png?raw=true`.
+- Do **not** use `https://raw.githubusercontent.com/...` for private-repo PR body images; it can show
+  as `404 Not Found` without a token.
+- Do **not** paste the tokenized `download_url` returned by the GitHub Contents API into the PR body.
+  Those URLs are temporary and may expose access tokens.
+- Avoid `https://github.com/.../raw/<branch>/...` when the branch contains slashes such as
+  `agent/KAN-123-slug`; raw routes can be ambiguous. Commit-pinned `blob/<sha>/...?raw=true` is stable.
+
 ## PR Body Template
 
 ```markdown
@@ -101,7 +151,7 @@ Charlie rather than opening an unverified PR.
 - <scenario and result>
 
 ## Screenshots
-<!-- Upload screenshots with Playwright after PR creation and replace this section with attachment markdown. -->
+![Short proof description](https://github.com/AISmithLab/AICodingGym/blob/<commit-sha>/docs/screenshots/<file>.png?raw=true)
 
 Jira: <KAN-123 link>
 ```

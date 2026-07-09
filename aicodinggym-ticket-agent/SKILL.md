@@ -68,8 +68,10 @@ Operational templates live in [REFERENCE.md](REFERENCE.md).
 8. **Commit, push, PR.** Validate commit message with `scripts/validate.sh commit`. Push and open a
    regular PR against `main`. Include ticket summary, implementation notes, tests run, browser validation,
    and screenshot placeholders in the body.
-9. **Attach screenshots.** Use Playwright MCP on the GitHub PR page to edit the PR body, upload the
-   screenshot files, and save the resulting GitHub attachment markdown in the PR description.
+9. **Attach screenshots.** Add proof screenshots to the PR branch under `docs/screenshots/`, commit and
+   push them after rerunning the local CI gate, then edit the PR body to render each image with a
+   commit-pinned GitHub blob URL ending in `?raw=true`. Do not use `raw.githubusercontent.com` for
+   private-repo screenshots; it can render as 404 without a token.
 10. **Update Jira.** Add a Jira comment with the PR link, tests run, and browser validation summary.
     Transition to the closest review state such as `In Review` when available.
 11. **Continue.** Return to discovery and process the next ticket. If none remain, schedule the next scan.
