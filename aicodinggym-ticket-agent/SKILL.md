@@ -44,8 +44,9 @@ Operational templates live in [REFERENCE.md](REFERENCE.md).
 1. **Discover.** Use Atlassian MCP JQL search. Read each candidate issue's summary, description,
    acceptance criteria, status, labels, assignee, and existing PR links/comments. Skip done tickets
    and tickets already linked to an open PR unless Charlie explicitly asks for a rework.
-2. **Claim.** Query available transitions and move the issue to the closest active state such as
-   `In Progress` when present. Add a short Jira comment: `Starting automated implementation.`
+2. **Claim.** Assign the issue to Charlie Sun via Atlassian MCP, query available transitions, and move
+   the issue to the closest active state such as `In Progress` when present. Add a short Jira comment:
+   `Starting automated implementation.`
 3. **Prepare branch.** In `/Users/Charlie.Sun/Desktop/AI/AICodingGym`, sync `main`, create
    `agent/KAN-<id>-<short-slug>`, and validate with `scripts/validate.sh branch`.
 4. **Implement.** Follow local `AGENTS.md`, repo patterns, and existing tests. Keep scope limited to the
@@ -54,10 +55,11 @@ Operational templates live in [REFERENCE.md](REFERENCE.md).
    - From repo root: `npm run lint`
    - From repo root: `npm test`
    - From `backend/`: `npm test`
-6. **Pre-PR code review/self-review.** Copy the review behavior from `charlie_skills`: review the full
-   diff against `../C3-REVIEW-CHECKLIST.md`, mark every applicable item pass/minor/blocking or not
-   applicable, and fix all blocking findings. Pay special attention to frontend correctness, null
-   handling, edge cases, and no `console.*`.
+6. **Pre-PR code review/self-review.** Review the full diff against the AICodingGym checklist in
+   [REFERENCE.md](REFERENCE.md). Mark every applicable item pass/minor/blocking or not applicable,
+   and fix all blocking findings. Focus on correctness first: null handling, edge cases, async/API
+   failures, no stray logging, tests that cover the changed behavior, and UI behavior that matches
+   the Jira acceptance criteria.
 7. **Browser validation.** Start the frontend and/or backend dev server required by the ticket:
    - Backend: from `backend/`, `npm run dev` on port 3001. Use `./start-backend.sh` if the port needs clearing.
    - Frontend: from repo root, `npm run dev`, normally `http://localhost:8080`.
@@ -85,4 +87,4 @@ Operational templates live in [REFERENCE.md](REFERENCE.md).
 | Frontend checks | `npm run lint`, `npm test` |
 | Backend checks | `cd backend && npm test` |
 | Dev servers | backend port 3001, frontend Vite URL normally port 8080 |
-| Shared review checklist | `../C3-REVIEW-CHECKLIST.md` |
+| Self-review checklist | [REFERENCE.md](REFERENCE.md) |

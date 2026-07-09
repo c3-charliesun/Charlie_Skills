@@ -25,29 +25,42 @@ No KAN tickets labeled agent_ready. Next scan in 30 min.
 
 ## Pre-PR Self-Review
 
-Use the shared checklist at `../C3-REVIEW-CHECKLIST.md` as the source of truth, the same way
-`amd-ticket-pipeline` and `pr-reviewer` use it.
+Use this AICodingGym-specific checklist before pushing. It is the source of truth for
+pre-PR review in this skill.
 
-For AICodingGym, apply the checklist pragmatically:
+Correctness is the primary focus. Mark each applicable item `PASS`, `MINOR`, or `BLOCKING`;
+mark irrelevant items `N/A`. Fix all `BLOCKING` items before pushing.
 
-- Treat C3-specific items as not applicable unless the diff actually touches C3 code.
-- Always apply correctness, null handling, edge cases, frontend, logging, and test/build items.
-- Mark each applicable item `PASS`, `MINOR`, or `BLOCKING`.
-- Fix all `BLOCKING` items before pushing.
+Required review items:
+
+- Acceptance criteria: the diff directly satisfies the Jira ticket and does not add unrelated scope.
+- Correctness: control flow, state updates, API calls, and persistence match the intended behavior.
+- Null/undefined handling: every optional value, missing response field, empty list, and absent parent is handled.
+- Edge cases: empty states, failed requests, loading states, permission/auth failures, and repeated actions behave sensibly.
+- Frontend behavior: UI state is accessible, responsive, and does not overlap or shift unexpectedly.
+- Backend/API behavior: inputs are validated, errors return useful status/messages, and data access is scoped correctly.
+- Async/concurrency: pending, retry, cancellation, and duplicate-submit paths do not corrupt state.
+- Tests: changed behavior is covered by focused frontend and/or backend tests; existing tests still pass.
+- Logging/debug code: no stray `console.log`, `console.error`, `debugger`, temporary comments, or test-only fixtures remain.
+- Security/secrets: no tokens, secrets, private env values, or unsafe user-controlled rendering are introduced.
+- Performance: no obvious unbounded loops, excessive fetches, unnecessary rerenders, or large synchronous work on hot paths.
+- Browser proof: Playwright validation exercises the acceptance criteria and screenshots prove the user-visible result.
 
 Output shape:
 
 ```markdown
 ### Pre-PR Self-Review
 
-Checklist: ../C3-REVIEW-CHECKLIST.md
+Checklist: AICodingGym ticket-agent REFERENCE.md
 
 | Item | Result | Note |
 |------|--------|------|
-| Null/undefined handling | PASS | Covered affected optional fields |
-| Edge cases | PASS | Empty state tested |
-| No console logging | PASS | No console.* added |
-| Frontend build/lint/test | PASS | npm run lint, npm test |
+| Acceptance criteria | PASS | Jira behavior implemented directly |
+| Null/undefined handling | PASS | Optional response fields handled |
+| Edge cases | PASS | Empty and failed states tested |
+| Logging/debug code | PASS | No console.* or debugger left |
+| Tests | PASS | npm run lint, npm test, backend npm test |
+| Browser proof | PASS | Playwright scenario and screenshots captured |
 
 Blocking: 0 - Minor: 0
 ```
