@@ -2,6 +2,8 @@
 
 Verbatim snippets for each step of the [SKILL.md](SKILL.md) runbook. App ID is
 `stgazamd2-amdpoqa-amdpricingopt` throughout. Always drive the browser via the Playwright MCP.
+If a C3 Okta sign-in page appears, sign in automatically only when Charlie's credentials are
+already pre-populated; otherwise (or if MFA is required) stop and prompt Charlie for guidance.
 
 ## §1 — Get the amdPoUI package + server version
 

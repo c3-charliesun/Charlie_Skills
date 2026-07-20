@@ -17,7 +17,7 @@ Verbatim console/API snippets live in [REFERENCE.md](REFERENCE.md).
 
 ## Hard rules
 
-0. **Always drive the browser via the Playwright MCP.** Every browser session in this runbook (Studio build page, both consoles, `ontrack.amd.com`) must be run through the Playwright MCP.
+0. **Always drive the browser via the Playwright MCP.** Every browser session in this runbook (Studio build page, both consoles, `ontrack.amd.com`) must be run through the Playwright MCP. If a C3 Okta sign-in page appears, check whether Charlie's credentials are already pre-populated: if so, sign in automatically; if not (or MFA is required), stop and prompt Charlie for guidance.
 1. **Two different consoles.** Queue/node steps run on the **amdpricingopt** console
    (`/amdpoqa/amdpricingopt/console/`). The upgrade (Step 4) runs on the **c3** console
    (`/amdpoqa/c3/console/`). Do not mix them up.
