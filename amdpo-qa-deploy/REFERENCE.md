@@ -1,12 +1,12 @@
 # amdPoUI QA deployment — command reference
 
 Verbatim snippets for each step of the [SKILL.md](SKILL.md) runbook. App ID is
-`stgazamd2-amdpoqa-amdpricingopt` throughout.
+`stgazamd2-amdpoqa-amdpricingopt` throughout. Always drive the browser via the Playwright MCP.
 
 ## §1 — Get the amdPoUI package + server version
 
 1. Navigate to the Studio branches page:
-   `https://stgazamd2.c3.ai/c3ai/studio/branches/github-c3-e-c3amdpo--po-develop--develop`
+   `https://stgazamd2.c3.ai/c3ai/studio/release-management/branches/github-c3-e-c3amdpo--po-develop--develop`
 2. Find the target build, click it, scroll to **All packages (3)** → click **amdPoUI**.
 3. The UI label is truncated. Extract the full package version from the browser console:
 
