@@ -74,7 +74,8 @@ Operational templates live in [REFERENCE.md](REFERENCE.md).
    private-repo screenshots; it can render as 404 without a token.
 10. **Update Jira.** Add a Jira comment with the PR link, tests run, and browser validation summary.
     Transition to the closest review state such as `In Review` when available.
-11. **Continue.** Return to discovery and process the next ticket. If none remain, schedule the next scan.
+11. **Request review.** After the PR body and screenshots are final, request review from Qiyu Li.
+12. **Continue.** Return to discovery and process the next ticket. If none remain, schedule the next scan.
 
 ## Reference Values
 
