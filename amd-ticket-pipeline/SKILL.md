@@ -4,7 +4,7 @@ description: >-
   Drive an AMD pricing ticket (C3PRICING / APO) from intake to an open PR — find or create
   the APO mirror, populate it, present a run plan, implement on a worktree, build + lint +
   code-review, push, screenshot-verify frontend-only changes, and open a PR (no reviewers,
-  "don't merge" label). Use when Charlie starts
+  "agentic" + "dont merge" labels). Use when Charlie starts
   work on a C3PRICING or APO ticket in the c3amdpo repo. Invoke with either a C3PRICING id
   (e.g. C3PRICING-339) or an APO id (e.g. APO-1199).
 ---
@@ -77,9 +77,10 @@ screen(s), and capture screenshots (before/after where a baseline is easy), veri
 actual pixels. **Good** → embed the screenshots in the PR body (Step 7). **Not good** → fix the code and
 re-run Step 6. Stop the preview server when done.
 
-**7. Open the PR — then stop.** Regular (non-draft) PR, no reviewers, **"don't merge"** label,
+**7. Open the PR — then stop.** Regular (non-draft) PR, no reviewers, labels **`agentic`** and
+**`dont merge`** (exact names — no apostrophe in `dont merge`),
 assignee = Charlie, base = `develop`. Body: infer format from Charlie's recent PRs (what / why + links to both tickets +
-attribution). 🔒 Show title/body/label/base, open on approval. For a frontend-only PR, embed the Step 6b
+attribution). 🔒 Show title/body/labels/base, open on approval. For a frontend-only PR, embed the Step 6b
 screenshots **via Playwright** — `gh` can't attach local images, so after the PR is open, drive the
 `browser` agent to it, edit the description, drag/drop the screenshot files into the GitHub editor (it
 uploads them to `user-attachments` and inserts the markdown), and save. Once open, transition the APO
@@ -106,6 +107,7 @@ One `bob-tasks` entry per ticket: `add` on start (`--refs`: APO id, C3PRICING id
 | Base branch | `develop` |
 | Branch pattern | `<type>/cs/APO-<id>` — **no slug** (`scripts/validate.sh branch`) |
 | Commit format | `APO-<id> (C3PRICING-<id>): <desc>` (`scripts/validate.sh commit`) |
+| PR labels | `agentic` + `dont merge` (exact — no apostrophe) |
 | Review checklist | `Charlie_Skills/C3-REVIEW-CHECKLIST.md` (shared with pr-reviewer; Step 6 self-review) |
 | C3PRICING | `ontrack.amd.com` (AMD Okta → `browser` agent / Playwright — last resort, no MCP) |
 | APO | `c3energy.atlassian.net` — **Atlassian MCP only, never the browser** |
