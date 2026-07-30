@@ -12,7 +12,7 @@ description: >-
 # AMD ticket → PR pipeline
 
 Single-invocation pipeline for the repeating c3amdpo workflow: intake → APO mirror → plan → implement →
-validate → open PR. Pause at every 🔒 gate for explicit approval; track state in `bob-tasks` so a ticket
+validate → open PR. Pause at the two 🔒 gates (run plan, push) for explicit approval; track state in `bob-tasks` so a ticket
 resumes across sessions. Invoke with either id, e.g. `amd-ticket-pipeline C3PRICING-339` or `APO-1199`.
 
 ## Hard rules
@@ -28,8 +28,12 @@ resumes across sessions. Invoke with either id, e.g. `amd-ticket-pipeline C3PRIC
    The browser (`browser` agent / Playwright) is for C3PRICING (`ontrack.amd.com`, AMD Okta — no MCP),
    and only when you truly must. Read APO first via the MCP; fetch C3PRICING via the browser only when
    APO is thin or no mirror exists.
-3. **Approval gates.** Draft → show → wait for explicit approval before any egress: creating the APO
-   mirror, updating the APO body, pushing, opening the PR.
+3. **Approval gates — exactly two.** Wait for explicit approval at the **run plan** (Step 4, before any
+   code) and the **push** (Step 6). Everything else runs unattended: creating APO tickets, updating their
+   bodies, transitioning them, and opening the PR all proceed without asking. Report each with a link
+   right after doing it — ungated means unblocking, not silent, so Charlie can still follow the trail.
+   Push stays gated because it's the last point where a human sees the change before it leaves the
+   machine and, via the now-automatic PR, reaches the team.
 4. **Attribution.** End outgoing text (APO body, PR body) with, after a blank line:
    `_Drafted by Bob, reviewed by Charlie Sun_`.
 5. **Commit format:** `APO-<id> (C3PRICING-<id>): <imperative description>`. Check: `scripts/validate.sh commit`.
@@ -45,13 +49,15 @@ sufficient. Browser only as last resort (Rule 2).
 
 **1–2. APO mirror.** Search APO for a mirror by the C3PRICING key/link:
 - Found, still open → use it. Found but resolved (Rule 6) → create a NEW linked ticket. Missing → create it.
-- Create shape: title, body, link to C3PRICING, assignee = Charlie. Do NOT infer issue type / priority /
-  epic / labels. 🔒 Show draft, create on approval.
-- Right after creating, transition to **"In Progress"** (`getTransitionsForJiraIssue` →
-  `transitionJiraIssue`; no extra approval — part of the approved creation).
+- Create shape: title, body, link to C3PRICING, assignee = Charlie. Leave issue type / priority /
+  epic / labels unset — those follow team conventions you can't reliably infer, and a wrong value is
+  more work to undo than an empty one is to fill in.
+- Create it without asking, then transition to **"In Progress"** (`getTransitionsForJiraIssue` →
+  `transitionJiraIssue`) and post the ticket link in chat.
 
 **3. Populate the APO body.** Fetch the last 10 APO ticket bodies, infer the house format, draft the body
-from the C3PRICING content (+ attribution). 🔒 Update on approval.
+from the C3PRICING content (+ attribution), and apply it. No approval needed — APO edits are cheap to
+revise. Summarize what you wrote in chat.
 
 **4. Run plan.** Present in chat only — no file. 🔒 Design checkpoint; no code until approved.
 
@@ -80,7 +86,8 @@ re-run Step 6. Stop the preview server when done.
 **7. Open the PR — then stop.** Regular (non-draft) PR, no reviewers, labels **`agentic`** and
 **`dont merge`** (exact names — no apostrophe in `dont merge`),
 assignee = Charlie, base = `develop`. Body: infer format from Charlie's recent PRs (what / why + links to both tickets +
-attribution). 🔒 Show title/body/labels/base, open on approval. For a frontend-only PR, embed the Step 6b
+attribution). Open it without asking — the Step 6 push approval covers this, since the `dont merge` label
+means an open PR can't land on its own. For a frontend-only PR, embed the Step 6b
 screenshots **via Playwright** — `gh` can't attach local images, so after the PR is open, drive the
 `browser` agent to it, edit the description, drag/drop the screenshot files into the GitHub editor (it
 uploads them to `user-attachments` and inserts the markdown), and save. Once open, transition the APO
@@ -107,6 +114,7 @@ One `bob-tasks` entry per ticket: `add` on start (`--refs`: APO id, C3PRICING id
 | Base branch | `develop` |
 | Branch pattern | `<type>/cs/APO-<id>` — **no slug** (`scripts/validate.sh branch`) |
 | Commit format | `APO-<id> (C3PRICING-<id>): <desc>` (`scripts/validate.sh commit`) |
+| Approval gates | run plan (Step 4) + push (Step 6) — nothing else |
 | PR labels | `agentic` + `dont merge` (exact — no apostrophe) |
 | Review checklist | `Charlie_Skills/C3-REVIEW-CHECKLIST.md` (shared with pr-reviewer; Step 6 self-review) |
 | C3PRICING | `ontrack.amd.com` (AMD Okta → `browser` agent / Playwright — last resort, no MCP) |
