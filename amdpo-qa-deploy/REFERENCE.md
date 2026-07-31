@@ -85,7 +85,7 @@ await InvalidationQueue.resume()
 
 Verify all 22 queues show `paused: false` (using the §2 verify snippet).
 
-## §8 — Transition C3PRICING tickets to "Implemented"
+## §8 — Report C3PRICING tickets for Charlie to transition
 
 Find merged PRs between the previous and new SHA:
 
@@ -93,8 +93,19 @@ Find merged PRs between the previous and new SHA:
 gh api repos/c3-e/c3amdpo/compare/<before_SHA>...<after_SHA> --jq '.commits[].commit.message'
 ```
 
-For each C3PRICING ticket referenced, navigate to `ontrack.amd.com` (browser only — AMD Okta, no MCP)
-and click **Move to Implemented** with:
+**Report only — do not open `ontrack.amd.com` and do not transition anything.** Charlie applies these
+himself. Present the tickets in chat like this:
+
+> These tickets need **Move to Implemented** on `ontrack.amd.com`:
+>
+> | C3PRICING | Title | Link |
+> | --- | --- | --- |
+> | C3PRICING-507 | <title> | https://ontrack.amd.com/browse/C3PRICING-507 |
+>
+> For each, set: Issue Resolution **Fixed** · Root Cause **Ready to be tested again** ·
+> Root Cause Category **AMD: Software Coding**
+
+Values to report for every ticket:
 
 - Issue Resolution: **Fixed**
 - Root Cause: **Ready to be tested again**
@@ -102,7 +113,7 @@ and click **Move to Implemented** with:
 
 ## §9 — Post deployment summary to AMD SE Teams chat
 
-After transitioning tickets, post to the **SEs ONLY - AMD PO Working Team** chat a table of:
+Post to the **SEs ONLY - AMD PO Working Team** chat a table of:
 
 | APO | C3PRICING | Assignee | What it does |
 | --- | --- | --- | --- |

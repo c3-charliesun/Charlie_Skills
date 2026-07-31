@@ -3,9 +3,9 @@ name: amdpo-qa-deploy
 description: >-
   Deploy an amdPoUI build to the amdpoqa QA environment on stgazamd2.c3.ai end-to-end —
   pull the package + server version from a Studio build, pause InvalidationQueues, drain task
-  nodes, run the app upgrade, wait out the 503, restore nodes, resume queues, transition the
-  C3PRICING tickets in the build to "Implemented", and post the deployment summary to the AMD
-  SE Teams chat. Use when Charlie wants to push a build to QA / upgrade amdpoqa / run the QA
+  nodes, run the app upgrade, wait out the 503, restore nodes, resume queues, report the C3PRICING
+  tickets in the build for Charlie to transition to "Implemented", and post the deployment summary to
+  the AMD SE Teams chat. Use when Charlie wants to push a build to QA / upgrade amdpoqa / run the QA
   deployment runbook for amdPoUI on stgazamd2.
 ---
 
@@ -17,7 +17,7 @@ Verbatim console/API snippets live in [REFERENCE.md](REFERENCE.md).
 
 ## Hard rules
 
-0. **Always drive the browser via the Playwright MCP.** Every browser session in this runbook (Studio build page, both consoles, `ontrack.amd.com`) must be run through the Playwright MCP. If a C3 Okta sign-in page appears, check whether Charlie's credentials are already pre-populated: if so, sign in automatically; if not (or MFA is required), stop and prompt Charlie for guidance.
+0. **Always drive the browser via the Playwright MCP.** Every browser session in this runbook (Studio build page, both consoles) must be run through the Playwright MCP. If a C3 Okta sign-in page appears, check whether Charlie's credentials are already pre-populated: if so, sign in automatically; if not (or MFA is required), stop and prompt Charlie for guidance.
 1. **Two different consoles.** Queue/node steps run on the **amdpricingopt** console
    (`/amdpoqa/amdpricingopt/console/`). The upgrade (Step 4) runs on the **c3** console
    (`/amdpoqa/c3/console/`). Do not mix them up.
@@ -30,8 +30,8 @@ Verbatim console/API snippets live in [REFERENCE.md](REFERENCE.md).
    (5–7 min typical); navigation timeouts (~60s) in this window are expected — wait 30s, retry.
    Done when the title is `Console | C3 AI Platform™`.
 6. **Never resume queues or restore nodes before the app is confirmed back up** (Step 5 green).
-7. **C3PRICING transitions are browser-only** on `ontrack.amd.com` (AMD Okta, no MCP). Use the
-   `browser` agent / Playwright.
+7. **Never transition C3PRICING tickets yourself.** Step 8 is report-only: list the tickets and the field
+   values, and let Charlie apply them on `ontrack.amd.com`. Don't open the browser for this step.
 8. **Teams post is a write action — get Charlie's approval on the drafted table before posting.**
    Post to the **SEs ONLY - AMD PO Working Team** chat, nowhere else.
 
@@ -62,11 +62,12 @@ title is `Console | C3 AI Platform™`. [REFERENCE.md](REFERENCE.md) §5.
 **7. Resume InvalidationQueues.** `await InvalidationQueue.resume()`, verify all 22 show
 `paused: false`. [REFERENCE.md](REFERENCE.md) §7.
 
-**8. Transition C3PRICING tickets to "Implemented".** Diff the previous → new SHA to find merged PRs
+**8. Report the C3PRICING tickets for Charlie to transition.** Diff the previous → new SHA to find merged PRs
 (`gh api repos/c3-e/c3amdpo/compare/<before_SHA>...<after_SHA> --jq '.commits[].commit.message'`).
-For each referenced C3PRICING ticket, on `ontrack.amd.com` click **Move to Implemented** with:
-Issue Resolution **Fixed** · Root Cause **Ready to be tested again** · Root Cause Category
-**AMD: Software Coding**. [REFERENCE.md](REFERENCE.md) §8.
+List every referenced C3PRICING ticket in chat with its title and a direct `ontrack.amd.com` link, plus the
+field values to apply: Issue Resolution **Fixed** · Root Cause **Ready to be tested again** · Root Cause
+Category **AMD: Software Coding**. **Do not open the browser and do not transition anything** — Charlie does
+these himself. [REFERENCE.md](REFERENCE.md) §8.
 
 **9. Post the deployment summary to Teams.** 🔒 Draft, show Charlie, post on approval. Post to the
 **SEs ONLY - AMD PO Working Team** chat a table of **APO ↔ C3PRICING ↔ Assignee ↔ What it does**.
@@ -87,6 +88,6 @@ actual QA state, which can differ from CI build SHAs) — not from the git histo
 | Queue count | 22 (verify field `paused`) |
 | Task node target | drain 0/0/0 → `taskCount 0`; restore 10/10/30 → `taskCount 10` (total 12) |
 | GitHub repo | `c3-e/c3amdpo` |
-| C3PRICING (browser only) | `ontrack.amd.com` (AMD Okta, no MCP) |
-| Transition defaults | Fixed / Ready to be tested again / AMD: Software Coding |
+| C3PRICING | `ontrack.amd.com` — **report only, Charlie transitions** |
+| Transition values to report | Fixed / Ready to be tested again / AMD: Software Coding |
 | Teams target | **SEs ONLY - AMD PO Working Team** chat |
