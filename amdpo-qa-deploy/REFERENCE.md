@@ -26,12 +26,21 @@ Console: `https://stgazamd2.c3.ai/amdpoqa/amdpricingopt/console/index.html`
 await InvalidationQueue.pause()
 ```
 
-Verify all 22 queues show `paused: true` (field is `paused`, NOT `isPaused`):
+Verify with `allPaused()`, which returns the names of the paused queues — expect **all 22**:
 
 ```js
-const result = await InvalidationQueue.countAll();
-return result.map(q => ({ queue: q.queue, paused: q.paused }));
+const paused = await InvalidationQueue.allPaused();
+const stats = await InvalidationQueue.countAll();
+return { pausedCount: paused.length, queueCount: stats.length, paused };
 ```
+
+Do **not** verify by reading `q.paused` off `countAll()`. `countAll()` returns
+`InvalidationQueueStats`, whose only fields are `type, queue, initial, pending, disabled,
+computingActions, computingEntries, awaitingCompute, pendingActions, failed, unreviewedFailed` —
+there is no `paused` field, so `q.paused` is always `undefined` and can serialize as `false`. The
+check then reports "0 paused" whether or not the pause took effect, silently disabling the gate
+that protects the upgrade. `InvalidationQueue.isPaused()` is also unusable here: on the base type
+it throws `Function isPaused can not be called on base InvalidationQueue type`.
 
 ## §3 — Drain task nodes to 0
 
@@ -64,10 +73,43 @@ A `BatchError` with an empty `errors` array is **normal** — it means the upgra
 
 Poll the amdpricingopt console every 30s:
 
-- Title `503 Service Temporarily Unavailable` = still upgrading (typically 5–7 min).
-- Title `Console | C3 AI Platform™` = back up ✅
+- Title `503 Service Temporarily Unavailable` = still upgrading (typically 5–7 min, but it has
+  come back in as little as ~90s).
+- Title `Console | C3 AI Platform™` = serving again.
 
-Navigation timeouts (~60s) during this window are normal — wait 30s and retry.
+Navigation timeouts (~60s) during this window are normal — wait 30s and retry. Don't poll with
+`browser_wait_for`'s `time` argument — it has been observed not to honor the requested duration
+(120s + 150s elapsed ~90s of real time). Poll out-of-band instead, e.g. a background shell loop
+that exits on the first non-503 response:
+
+```bash
+URL=https://stgazamd2.c3.ai/amdpoqa/amdpricingopt/console/index.html
+until [ "$(curl -s -o /dev/null -m 20 -w '%{http_code}' "$URL")" != "503" ]; do sleep 20; done
+```
+
+(A recovered app answers `302` unauthenticated — anything that isn't `503` means the proxy is
+serving again.)
+
+**A recovered title only proves the proxy is up — it does not prove the new build is live.**
+Confirm the intended versions actually landed before moving on:
+
+```js
+const rv = await Pkg.resolvedVersions();
+return JSON.parse(JSON.stringify(rv)).filter(v => /^amdPoUI:|^amdPoDataModel:|^platform:/.test(v));
+```
+
+Expect `amdPoUI:` and `amdPoDataModel:` at the §1 package version and `platform:` at the §1 server
+version, e.g.:
+
+```
+amdPoUI:1.1.0+583.8.9.3.139.2d9e78f417a7374812dd6e2efe6f3b3bf74ad71e.develop.uid.61859416
+amdPoDataModel:1.1.0+583.8.9.3.139.2d9e78f417a7374812dd6e2efe6f3b3bf74ad71e.develop.uid.61859416
+platform:8.9.3+139
+```
+
+If these still show the *previous* version, the upgrade did not take — stop and investigate. Do
+not restore nodes or resume queues. Note that `Pkg.version()` returns only the base `1.1.0` and is
+useless for this check.
 
 ## §6 — Restore task nodes to 10
 
@@ -83,7 +125,16 @@ Poll every 30s until `taskCount === 10` (total = 12: 2 leaders + 10 task), using
 await InvalidationQueue.resume()
 ```
 
-Verify all 22 queues show `paused: false` (using the §2 verify snippet).
+Verify with `allPaused()` — it must come back **empty**:
+
+```js
+const paused = await InvalidationQueue.allPaused();
+const stats = await InvalidationQueue.countAll();
+return { stillPaused: paused, stillPausedCount: paused.length, queueCount: stats.length };
+```
+
+`stillPausedCount: 0` with `queueCount: 22` means every queue is running again. The same
+`countAll().paused` caveat from §2 applies — that field does not exist.
 
 ## §8 — Report C3PRICING tickets for Charlie to transition
 
