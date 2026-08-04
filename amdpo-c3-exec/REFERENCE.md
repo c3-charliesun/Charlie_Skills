@@ -12,6 +12,11 @@ QA=https://stgazamd2.c3.ai/amdpoqa/amdpricingopt
 PROD=https://prdazamd.c3.ai/amdpricing/amdpricingprod
 ```
 
+The §2 data recipes use `"$QA"` because `amdpoqa` is the env with the full dataset — counts and
+aggregates from `charlieamdpo02` are partial and misleading (SKILL.md Rule 4). Swap in `"$PERSONAL"`
+when the point is to exercise code you just changed rather than to learn something true about the
+data.
+
 ---
 
 ## §1 Probe evidence
@@ -57,6 +62,12 @@ stgazamd2 apps:
 Counts drift over time — treat these as magnitudes for a sanity check, not exact expectations. Use
 this call as the connectivity smoke test for any stgazamd2 env.
 
+**Don't read this table as evidence the envs hold equivalent data.** `PoQuotesHeader` happens to sit
+close between `charlieamdpo02` and `amdpoqa`, but `charlieamdpo02` is a partial dataset in general —
+other types, views, and joins diverge much further. Landing on one near-matching type is exactly the
+trap that makes a wrong answer look right, which is why live data questions go to `amdpoqa`
+(SKILL.md Rule 4).
+
 `prdazamd` was confirmed to authenticate from its own separately cached token (probed with `1+1`
 only — no prod data touched).
 
@@ -67,8 +78,8 @@ only — no prod data touched).
 ### Count rows
 
 ```bash
-c3 exec -s "$PERSONAL" 'PoQuotesHeader.fetchCount()'
-c3 exec --py -s "$PERSONAL" 'c3.PoQuotesHeader.fetchCount()'
+c3 exec -s "$QA" 'PoQuotesHeader.fetchCount()'
+c3 exec --py -s "$QA" 'c3.PoQuotesHeader.fetchCount()'
 ```
 
 ### Fetch a few ids
@@ -78,7 +89,7 @@ c3 exec --py -s "$PERSONAL" 'c3.PoQuotesHeader.fetchCount()'
 output:
 
 ```bash
-c3 exec -s "$PERSONAL" 'var r = PoQuotesHeader.fetch({limit: 5, include: "id"}); var out = []; for (var i = 0; i < r.objs.length; i++) { out.push(r.objs[i].id); } JSON.stringify(out)'
+c3 exec -s "$QA" 'var r = PoQuotesHeader.fetch({limit: 5, include: "id"}); var out = []; for (var i = 0; i < r.objs.length; i++) { out.push(r.objs[i].id); } JSON.stringify(out)'
 ```
 
 `.toArray()` does **not** fix this — it requires an explicit `arrayType` argument and fails with
@@ -87,7 +98,7 @@ c3 exec -s "$PERSONAL" 'var r = PoQuotesHeader.fetch({limit: 5, include: "id"});
 ### Inspect one full record
 
 ```bash
-c3 exec -s "$PERSONAL" 'JSON.stringify(PoQuotesHeader.fetch({limit: 1, include: "this"}).objs[0])'
+c3 exec -s "$QA" 'JSON.stringify(PoQuotesHeader.fetch({limit: 1, include: "this"}).objs[0])'
 ```
 
 ### Fetch by id
@@ -96,19 +107,19 @@ c3 exec -s "$PERSONAL" 'JSON.stringify(PoQuotesHeader.fetch({limit: 1, include: 
 400 parameter-mismatch. Go through `forId`:
 
 ```bash
-c3 exec -s "$PERSONAL" 'JSON.stringify(PoQuotesHeader.forId("C10001-000").get("this"))'
+c3 exec -s "$QA" 'JSON.stringify(PoQuotesHeader.forId("C10001-000").get("this"))'
 ```
 
 Or filter in a `fetch`:
 
 ```bash
-c3 exec -s "$PERSONAL" 'JSON.stringify(PoQuotesHeader.fetch({filter: "id == \"C10001-000\"", include: "id", limit: 1}).objs[0].id)'
+c3 exec -s "$QA" 'JSON.stringify(PoQuotesHeader.fetch({filter: "id == \"C10001-000\"", include: "id", limit: 1}).objs[0].id)'
 ```
 
 ### Filtered count
 
 ```bash
-c3 exec -s "$PERSONAL" 'PoQuotesHeader.fetchCount({filter: "exists(id)"})'
+c3 exec -s "$QA" 'PoQuotesHeader.fetchCount({filter: "exists(id)"})'
 ```
 
 ### Compare the same metric across all three stgazamd2 envs with one token
@@ -138,7 +149,7 @@ function main() {
 ```
 
 ```bash
-c3 exec -s "$PERSONAL" /tmp/probe.js
+c3 exec -s "$QA" /tmp/probe.js
 ```
 
 ### Check what's cached / cache a token
@@ -157,16 +168,16 @@ c3 auth --clear --workspace /tmp     # scoped clear
 
 ```bash
 # comprehension over a fetch
-c3 exec --py -s "$PERSONAL" '[o.id for o in c3.PoQuotesHeader.fetch({"limit": 3, "include": "id"}).objs]'
+c3 exec --py -s "$QA" '[o.id for o in c3.PoQuotesHeader.fetch({"limit": 3, "include": "id"}).objs]'
 
 # dict literal to bundle several reads
-c3 exec --py -s "$PERSONAL" '{"headers": c3.PoQuotesHeader.fetchCount()}'
+c3 exec --py -s "$QA" '{"headers": c3.PoQuotesHeader.fetchCount()}'
 
 # conditional expression instead of if/else
-c3 exec --py -s "$PERSONAL" '"many" if c3.PoQuotesHeader.fetchCount() > 1000 else "few"'
+c3 exec --py -s "$QA" '"many" if c3.PoQuotesHeader.fetchCount() > 1000 else "few"'
 
 # len() over a comprehension instead of a loop with a counter
-c3 exec --py -s "$PERSONAL" 'len([o for o in c3.PoQuotesHeader.fetch({"limit": 50, "include": "id"}).objs])'
+c3 exec --py -s "$QA" 'len([o for o in c3.PoQuotesHeader.fetch({"limit": 50, "include": "id"}).objs])'
 ```
 
 If none of these fit the task, switch to JavaScript rather than fighting `Py.eval`.

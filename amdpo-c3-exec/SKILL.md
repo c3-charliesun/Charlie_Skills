@@ -4,7 +4,9 @@ description: >-
   Run JavaScript or Python on the AMD PO C3 environments with the `c3 exec` CLI — resolve the
   right auth token, target the correct app URL, read data, and decode CLI errors. Covers
   charlieamdpo02 (personal), amdpodev (dev), amdpoqa (QA) on stgazamd2.c3.ai, and amdpricing
-  (prod) on prdazamd.c3.ai. Use when Charlie wants to query, inspect, count, or probe data in
+  (prod) on prdazamd.c3.ai. Live data questions (counts, views, tables, aggregates) go to amdpoqa
+  because charlieamdpo02 holds only partial data. Use when Charlie wants to query, inspect, count,
+  or probe data in
   any of these environments, mentions `c3 exec` / `c3 auth`, asks to "run this on QA / dev /
   prod", needs a C3 auth token resolved or refreshed, or hits a `c3 exec` auth or syntax error.
 ---
@@ -24,7 +26,14 @@ evidence, and the approval template live in [REFERENCE.md](REFERENCE.md).
    Approval is per-operation, not per-session. Use the template in [REFERENCE.md](REFERENCE.md) §5.
 3. **Never invent, guess, forge, or scrape a token.** If no valid token is resolvable through the
    ladder below, stop and ask Charlie for a fresh one.
-4. **Default to `charlieamdpo02`** when Charlie doesn't name an environment.
+4. **Pick the env by intent, not habit.**
+   - **Live data questions → `amdpoqa`.** Counts, view/table queries, aggregates, distributions,
+     "how many / how much / what does the data look like" — all run against `amdpoqa`.
+     `charlieamdpo02` holds only a partial dataset, so its numbers come back plausible but wrong,
+     which is worse than an error. Reads on `amdpoqa` are safe; Rule 1 gates only writes.
+   - **Writes, experiments, testing a method you just changed → `charlieamdpo02`**, the one env
+     where writes need no approval.
+   - When Charlie names an env, use that one.
 5. **Never use a `stgazamd2` token against `prdazamd`** (or the reverse). Prod auth is separate.
 
 ### What counts as a write
@@ -40,12 +49,12 @@ If you are unsure whether a call writes, treat it as a write and ask.
 
 ## Environment matrix
 
-| Env | `-s` app URL | Write policy |
-| --- | --- | --- |
-| personal | `https://stgazamd2.c3.ai/charlieamdpo02/amdpoui` | writes OK, no approval needed |
-| dev | `https://stgazamd2.c3.ai/amdpodev/amdvirtualization3` | read-only unless approved |
-| qa | `https://stgazamd2.c3.ai/amdpoqa/amdpricingopt` | read-only unless approved |
-| prod | `https://prdazamd.c3.ai/amdpricing/amdpricingprod` | read-only unless approved |
+| Env | `-s` app URL | Use for | Write policy |
+| --- | --- | --- | --- |
+| personal | `https://stgazamd2.c3.ai/charlieamdpo02/amdpoui` | writes, experiments, testing changed code — **partial data, don't trust counts** | writes OK, no approval needed |
+| dev | `https://stgazamd2.c3.ai/amdpodev/amdvirtualization3` | dev-specific checks | read-only unless approved |
+| qa | `https://stgazamd2.c3.ai/amdpoqa/amdpricingopt` | **all live data queries** (counts, views, tables, aggregates) | read-only unless approved |
+| prod | `https://prdazamd.c3.ai/amdpricing/amdpricingprod` | only when prod-specific data is the question | read-only unless approved |
 
 `-s` takes the **bare app URL** — `https://<cluster>/<env>/<app>`. The
 `/console/index.html` form is for the browser and the `/api/1/<cluster>/<env>/<app>` form is for
@@ -170,5 +179,6 @@ single failed attempt does not poison the cache.
 ## Quick smoke test
 
 `PoQuotesHeader.fetchCount()` returns a large non-zero count in all three stgazamd2 envs and is a
-safe read-only way to confirm connectivity and auth. Observed magnitudes are in
-[REFERENCE.md](REFERENCE.md) §1.
+safe read-only way to confirm connectivity and auth. Run it against whichever env you're about to
+use. Observed magnitudes are in [REFERENCE.md](REFERENCE.md) §1 — note the counts differ per env,
+which is exactly why live data questions belong on `amdpoqa` (Rule 4).
