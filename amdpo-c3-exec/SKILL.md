@@ -3,9 +3,9 @@ name: amdpo-c3-exec
 description: >-
   Run JavaScript or Python on the AMD PO C3 environments with the `c3 exec` CLI — resolve the
   right auth token, target the correct app URL, read data, and decode CLI errors. Covers
-  charlieamdpo02 (personal), amdpodev (dev), amdpoqa (QA) on stgazamd2.c3.ai, and amdpricing
+  charlieamdpo03 (personal), amdpodev (dev), amdpoqa (QA) on stgazamd2.c3.ai, and amdpricing
   (prod) on prdazamd.c3.ai. Live data questions (counts, views, tables, aggregates) go to amdpoqa
-  because charlieamdpo02 holds only partial data. Use when Charlie wants to query, inspect, count,
+  because charlieamdpo03 holds only partial data. Use when Charlie wants to query, inspect, count,
   or probe data in
   any of these environments, mentions `c3 exec` / `c3 auth`, asks to "run this on QA / dev /
   prod", needs a C3 auth token resolved or refreshed, or hits a `c3 exec` auth or syntax error.
@@ -19,8 +19,9 @@ evidence, and the approval template live in [REFERENCE.md](REFERENCE.md).
 ## Hard rules
 
 1. **NEVER run a write operation in `amdpodev`, `amdpoqa`, or `amdpricing` (prod) unless Charlie
-   explicitly approves that specific operation.** `charlieamdpo02` is Charlie's personal
-   workspace — writes there need no approval.
+   explicitly approves that specific operation.** `charlieamdpo03` is Charlie's personal
+   testing ground — read, write, or delete there needs no approval, as long as it serves the
+   goal at hand (e.g. testing a change).
 2. **Write pre-flight for the three shared envs.** Before any write: name the target env, echo the
    exact code you intend to run, state what it will change, then **stop and wait** for approval.
    Approval is per-operation, not per-session. Use the template in [REFERENCE.md](REFERENCE.md) §5.
@@ -29,10 +30,10 @@ evidence, and the approval template live in [REFERENCE.md](REFERENCE.md).
 4. **Pick the env by intent, not habit.**
    - **Live data questions → `amdpoqa`.** Counts, view/table queries, aggregates, distributions,
      "how many / how much / what does the data look like" — all run against `amdpoqa`.
-     `charlieamdpo02` holds only a partial dataset, so its numbers come back plausible but wrong,
+     `charlieamdpo03` holds only a partial dataset, so its numbers come back plausible but wrong,
      which is worse than an error. Reads on `amdpoqa` are safe; Rule 1 gates only writes.
-   - **Writes, experiments, testing a method you just changed → `charlieamdpo02`**, the one env
-     where writes need no approval.
+   - **Writes, experiments, testing a method you just changed → `charlieamdpo03`**, the one env
+     where reads/writes/deletes need no approval.
    - When Charlie names an env, use that one.
 5. **Never use a `stgazamd2` token against `prdazamd`** (or the reverse). Prod auth is separate.
 
@@ -51,7 +52,7 @@ If you are unsure whether a call writes, treat it as a write and ask.
 
 | Env | `-s` app URL | Use for | Write policy |
 | --- | --- | --- | --- |
-| personal | `https://stgazamd2.c3.ai/charlieamdpo02/amdpoui` | writes, experiments, testing changed code — **partial data, don't trust counts** | writes OK, no approval needed |
+| personal | `https://stgazamd2.c3.ai/charlieamdpo03/amdpoui` | testing ground — writes, experiments, testing changed code — **partial data, don't trust counts** | read/write/delete OK, no approval needed |
 | dev | `https://stgazamd2.c3.ai/amdpodev/amdvirtualization3` | dev-specific checks | read-only unless approved |
 | qa | `https://stgazamd2.c3.ai/amdpoqa/amdpricingopt` | **all live data queries** (counts, views, tables, aggregates) | read-only unless approved |
 | prod | `https://prdazamd.c3.ai/amdpricing/amdpricingprod` | only when prod-specific data is the question | read-only unless approved |
@@ -66,7 +67,7 @@ Platform apps are reachable the same way when needed, e.g. `https://stgazamd2.c3
 
 ### stgazamd2 — one token serves all three envs
 
-A token minted for `charlieamdpo02` authenticates against `amdpodev` and `amdpoqa` too
+A token minted for `charlieamdpo03` authenticates against `amdpodev` and `amdpoqa` too
 (verified). So a working token for any one of the three unblocks the other two.
 
 1. **Just run it.** `c3 exec -s <appUrl> '<code>'` — the CLI resolves a token on its own. Read its
@@ -76,7 +77,7 @@ A token minted for `charlieamdpo02` authenticates against `amdpodev` and `amdpoq
 2. **Fall back to `.env`.** Take `VITE_REACT_C3_AUTH` from
    `c3amdpo/amdpo/amdPoUI/react/.env` and pass it with `-t`.
 3. **Then the credentials file.** `C3_AUTH_COOKIE` in
-   `c3amdpo/.c3_credentials/stgazamd2_charlieamdpo02_amdpoui`.
+   `c3amdpo/.c3_credentials/stgazamd2_charlieamdpo03_amdpoui`.
 4. **Check expiry before using a token from 2 or 3** — decode the JWT payload and read `exp`,
    which is **epoch milliseconds**, not seconds. Snippet in [REFERENCE.md](REFERENCE.md) §4.
 5. **Still nothing valid → ask Charlie.** He generates one with

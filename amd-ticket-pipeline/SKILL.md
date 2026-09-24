@@ -96,9 +96,9 @@ do not schedule a wakeup.
 
 ## Environment access
 
-c3auth token lives in `amdpo/amdPoUI/react/.env`, key `VITE_REACT_C3_AUTH` (bound to env `charlieamdpo02`
-on `stgazamd2.c3.ai`). Never commit it, never echo the raw value. Expired (401/403) → ask Charlie for a
-fresh one.
+c3auth token lives in `amdpo/amdPoUI/react/.env`, key `VITE_REACT_C3_AUTH` (bound to env `charlieamdpo03`
+on `stgazamd2.c3.ai` — Charlie's personal testing ground; read/write/delete freely there). Never commit
+it, never echo the raw value. Expired (401/403) → ask Charlie for a fresh one.
 
 ## State tracking
 

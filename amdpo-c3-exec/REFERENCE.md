@@ -6,14 +6,14 @@ unless explicitly marked.
 Shell shorthand used throughout:
 
 ```bash
-PERSONAL=https://stgazamd2.c3.ai/charlieamdpo02/amdpoui
+PERSONAL=https://stgazamd2.c3.ai/charlieamdpo03/amdpoui
 DEV=https://stgazamd2.c3.ai/amdpodev/amdvirtualization3
 QA=https://stgazamd2.c3.ai/amdpoqa/amdpricingopt
 PROD=https://prdazamd.c3.ai/amdpricing/amdpricingprod
 ```
 
 The §2 data recipes use `"$QA"` because `amdpoqa` is the env with the full dataset — counts and
-aggregates from `charlieamdpo02` are partial and misleading (SKILL.md Rule 4). Swap in `"$PERSONAL"`
+aggregates from `charlieamdpo03` are partial and misleading (SKILL.md Rule 4). Swap in `"$PERSONAL"`
 when the point is to exercise code you just changed rather than to learn something true about the
 data.
 
@@ -21,8 +21,10 @@ data.
 
 ## §1 Probe evidence
 
-Everything in SKILL.md was verified live against `charlieamdpo02` (and read-only against the shared
-envs). Results worth remembering:
+Everything in SKILL.md was originally verified live against `charlieamdpo02` (and read-only against
+the shared envs); `charlieamdpo03` replaced it as the personal sandbox on 2026-08-20, mirroring the
+same Snowflake schema isolation (`instanceDatabaseSchemaMap.C3` → `DB_C3_OUTBOUND_DEV.C3_PRICING_DEV2`)
+and JDBC store setup. Results worth remembering:
 
 | Probe | Result |
 | --- | --- |
@@ -50,23 +52,22 @@ envs). Results worth remembering:
 
 ### Cross-env token reuse (the key finding)
 
-The `charlieamdpo02` token from `react/.env` authenticated successfully against **both** other
-stgazamd2 apps:
+The `charlieamdpo03` token from `react/.env` authenticates successfully against **both** other
+stgazamd2 apps (verified pattern; carried over from `charlieamdpo02`):
 
 | Env | `PoQuotesHeader.fetchCount()` |
 | --- | --- |
-| `charlieamdpo02` / `amdpoui` | ~186,484 |
+| `charlieamdpo03` / `amdpoui` | ~181,258 |
 | `amdpoqa` / `amdpricingopt` | ~186,483 |
 | `amdpodev` / `amdvirtualization3` | ~181,258 |
 
 Counts drift over time — treat these as magnitudes for a sanity check, not exact expectations. Use
 this call as the connectivity smoke test for any stgazamd2 env.
 
-**Don't read this table as evidence the envs hold equivalent data.** `PoQuotesHeader` happens to sit
-close between `charlieamdpo02` and `amdpoqa`, but `charlieamdpo02` is a partial dataset in general —
-other types, views, and joins diverge much further. Landing on one near-matching type is exactly the
-trap that makes a wrong answer look right, which is why live data questions go to `amdpoqa`
-(SKILL.md Rule 4).
+**Don't read this table as evidence the envs hold equivalent data.** `charlieamdpo03` is a partial
+dataset in general — other types, views, and joins diverge much further from `amdpoqa`. Landing on
+one near-matching type is exactly the trap that makes a wrong answer look right, which is why live
+data questions go to `amdpoqa` (SKILL.md Rule 4).
 
 `prdazamd` was confirmed to authenticate from its own separately cached token (probed with `1+1`
 only — no prod data touched).
@@ -215,7 +216,7 @@ TOK=$(grep '^VITE_REACT_C3_AUTH=' ~/Desktop/c3amdpo/amdpo/amdPoUI/react/.env | c
 Or out of the credentials file:
 
 ```bash
-TOK=$(grep '^export C3_AUTH_COOKIE=' ~/Desktop/c3amdpo/.c3_credentials/stgazamd2_charlieamdpo02_amdpoui | cut -d'"' -f2)
+TOK=$(grep '^export C3_AUTH_COOKIE=' ~/Desktop/c3amdpo/.c3_credentials/stgazamd2_charlieamdpo03_amdpoui | cut -d'"' -f2)
 ```
 
 These tokens are short-lived (hours), so re-check expiry rather than assuming a token that worked
@@ -254,4 +255,5 @@ Notes:
 - Approval covers **that one operation**. A second write needs a second approval.
 - If a read-only investigation uncovers a needed fix, still stop and ask — don't chain a write onto
   the end of a read.
-- `charlieamdpo02` needs none of this.
+- `charlieamdpo03` needs none of this — it's Charlie's testing ground; read/write/delete freely
+  there as long as it serves the task at hand.
