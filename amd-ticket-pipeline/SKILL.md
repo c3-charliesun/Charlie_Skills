@@ -76,11 +76,12 @@ reported by <reporter>). <AMD ask.> <If Rule 4 applies: note the prior mirror, l
 there. For tests, use the relevant C3 skills (`c3-testing` + the domain skill) and mimic the repo's
 existing tests (`test/js-rhino/**`, `test/py/**`). Tests are authored here but run by CI — not locally.
 
-**5. 🔒 Push gate → validate, commit, push.** From `amdpo/amdPoUI/react` run `npm run build` +
-`npm run lint`, then `c3-code-review` on the diff. `c3-code-review` skips `.py` and `react/**/*.tsx`, so
-also self-review the diff against `C3-REVIEW-CHECKLIST.md` (skills-repo root; the same checklist
-pr-reviewer uses), hand-checking the **[PY]** and **[TSX]** items. Fix all findings, commit, and push
-once Charlie approves.
+**5. 🔒 Push gate → self-review, fix, commit, push.** Iterate with Charlie until he's satisfied and
+approves the push. Then, from `amdpo/amdPoUI/react`, run `npm run build` + `npm run lint`, and run
+Claude's `/code-review high` on the diff. `/code-review` skips `.py` and `react/**/*.tsx`, so also
+self-review the diff against `C3-REVIEW-CHECKLIST.md` (skills-repo root; the same checklist pr-reviewer
+uses), hand-checking the **[PY]** and **[TSX]** items. Fix every issue surfaced, then commit and push
+everything.
 
 **6. Open the PR.** Regular (non-draft) PR against `develop`, no reviewers, assignee = Charlie, label
 **`dont merge`** (exact — no apostrophe), title/body per Rule 3 with links to the APO and C3PRICING
