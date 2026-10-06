@@ -3,17 +3,15 @@ name: amdpo-qa-deploy
 description: >-
   Deploy an amdPoUI build to the amdpoqa QA environment on stgazamd2.c3.ai end-to-end —
   pull the package + server version from a Studio build, pause InvalidationQueues, drain task
-  nodes, run the app upgrade, wait out the 503, restore nodes, resume queues, report the C3PRICING
-  tickets in the build for Charlie to transition to "Implemented", and post the deployment summary to
-  the AMD SE Teams chat. Use when Charlie wants to push a build to QA / upgrade amdpoqa / run the QA
-  deployment runbook for amdPoUI on stgazamd2.
+  nodes, run the app upgrade, wait out the 503, restore nodes, and resume queues. Use when Charlie
+  wants to push a build to QA / upgrade amdpoqa / run the QA deployment runbook for amdPoUI on
+  stgazamd2.
 ---
 
 # amdPoUI QA deployment (amdpoqa on stgazamd2.c3.ai)
 
-Ordered runbook to upgrade the `amdpoqa` app to a new `amdPoUI` build, then close out the
-tickets and announce the deploy. Run the steps **in order** — each depends on the previous.
-Verbatim console/API snippets live in [REFERENCE.md](REFERENCE.md).
+Ordered runbook to upgrade the `amdpoqa` app to a new `amdPoUI` build. Run the steps **in order** —
+each depends on the previous. Verbatim console/API snippets live in [REFERENCE.md](REFERENCE.md).
 
 ## Hard rules
 
@@ -36,10 +34,6 @@ Verbatim console/API snippets live in [REFERENCE.md](REFERENCE.md).
 6. **A recovered page title is not proof the build landed.** Step 5 is only green once
    `Pkg.resolvedVersions()` shows the Step 1 package + server versions. Never resume queues or
    restore nodes before that.
-7. **Never transition C3PRICING tickets yourself.** Step 8 is report-only: list the tickets and the field
-   values, and let Charlie apply them on `ontrack.amd.com`. Don't open the browser for this step.
-8. **Teams post is a write action — get Charlie's approval on the drafted table before posting.**
-   Post to the **SEs ONLY - AMD PO Working Team** chat, nowhere else.
 
 ## Steps
 
@@ -70,19 +64,6 @@ The title alone only proves the proxy is serving. [REFERENCE.md](REFERENCE.md) �
 **7. Resume InvalidationQueues.** `await InvalidationQueue.resume()`, then verify
 `InvalidationQueue.allPaused()` comes back **empty**. [REFERENCE.md](REFERENCE.md) §7.
 
-**8. Report the C3PRICING tickets for Charlie to transition.** Diff the previous → new SHA to find merged PRs
-(`gh api repos/c3-e/c3amdpo/compare/<before_SHA>...<after_SHA> --jq '.commits[].commit.message'`).
-List every referenced C3PRICING ticket in chat with its title and a direct `ontrack.amd.com` link, plus the
-field values to apply: Issue Resolution **Fixed** · Root Cause **Ready to be tested again** · Root Cause
-Category **AMD: Software Coding**. **Do not open the browser and do not transition anything** — Charlie does
-these himself. [REFERENCE.md](REFERENCE.md) §8.
-
-**9. Post the deployment summary to Teams.** 🔒 Draft, show Charlie, post on approval. Post to the
-**SEs ONLY - AMD PO Working Team** chat a table of **APO ↔ C3PRICING ↔ Assignee ↔ What it does**.
-The "from" SHA comes from the last `QA upgrade <SHA> → <SHA>` message in that chat (it tracks the
-actual QA state, which can differ from CI build SHAs) — not from the git history.
-[REFERENCE.md](REFERENCE.md) §9.
-
 ## Reference values
 
 | Thing | Value |
@@ -97,6 +78,3 @@ actual QA state, which can differ from CI build SHAs) — not from the git histo
 | Upgrade-landed check | `Pkg.resolvedVersions()` → `amdPoUI:` + `platform:` match Step 1 |
 | Task node target | drain 0/0/0 → `taskCount 0`; restore 10/10/30 → `taskCount 10` (total 12) |
 | GitHub repo | `c3-e/c3amdpo` |
-| C3PRICING | `ontrack.amd.com` — **report only, Charlie transitions** |
-| Transition values to report | Fixed / Ready to be tested again / AMD: Software Coding |
-| Teams target | **SEs ONLY - AMD PO Working Team** chat |
