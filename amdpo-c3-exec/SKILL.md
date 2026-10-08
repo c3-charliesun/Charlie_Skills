@@ -9,6 +9,8 @@ description: >-
   or probe data in
   any of these environments, mentions `c3 exec` / `c3 auth`, asks to "run this on QA / dev /
   prod", needs a C3 auth token resolved or refreshed, or hits a `c3 exec` auth or syntax error.
+  Also covers syncing a branch or worktree to charlieamdpo03 with `c3 sync` (no VS Code needed) —
+  use when Charlie says "sync <branch/PR/worktree> to charlieamdpo03" or `c3 sync` hangs.
 ---
 
 # AMD PO environments via `c3 exec`
@@ -164,6 +166,33 @@ in `JSON.stringify(...)` in JS to get one compact string:
 c3 exec -s <appUrl> 'JSON.stringify({count: PoQuotesHeader.fetchCount()})'
 ```
 
+## Syncing a branch with `c3 sync`
+
+Pushes the code checked out in a folder to an env, so it runs there. Works from **any**
+worktree or the main checkout — no VS Code, no steps from Charlie. Default target is
+`charlieamdpo03`; `c3 sync` is a write, so the other envs need Rule 1 approval.
+
+```bash
+cd <worktree root>          # the folder whose checked-out code you want on the env
+c3 sync -f -v -s https://stgazamd2.c3.ai/charlieamdpo03/dev --no-tty
+```
+
+- **Target the env's `dev` app, not `amdpoui`.** `dev` (root package `ide`) holds the `Ide` type
+  that accepts uploads; packages are shared across the env, so `amdpoui` picks the code up.
+  Pointed at `/amdpoui`, the CLI never errors — it **spins on `Uploading (0/3)` forever**.
+- **"Sync a branch" = sync a folder.** The CLI uploads whatever is checked out where it runs. To
+  sync a branch, find the worktree that has it (`git worktree list`, or
+  `gh pr view <n> --json headRefName` for a PR); for `develop`, `git fetch` then
+  `git checkout --detach origin/develop` in a clean worktree. Never switch a dirty checkout.
+- **Flags:** `-f` uploads every file (reliable, a few minutes for ~775 files); `--no-tty` is
+  required when running non-interactively; `-w` keeps syncing on every file change.
+- **Done when** the output ends with `✓ Synced <N> files`. Confirm the app is still up with
+  `c3 app status amdpoui -s https://stgazamd2.c3.ai/charlieamdpo03`.
+- **Syncing replaces what was there.** The env holds one copy of the code; the last sync wins.
+- **Frontend-only changes (`amdpo/amdPoUI/react/src`) need no sync** — run `npm run dev` with the
+  `VITE_REACT_C3_*` env vars instead. Recipe, evidence, and the hang diagnosis are in
+  [REFERENCE.md](REFERENCE.md) §6.
+
 ## Decoding errors
 
 | Message | What it actually means |
@@ -173,6 +202,7 @@ c3 exec -s <appUrl> 'JSON.stringify({count: PoQuotesHeader.fetchCount()})'
 | `SyntaxError: invalid syntax (Py.py#90)` (`Py.eval`) | Multi-statement Python. Collapse to one expression or switch to JS. |
 | `status 500 Internal Server Error` wrapping a message | Normal envelope for an app-side exception — read the inner message, not the 500. |
 | `BatchError` with an empty `errors` array | Success, not a failure (shows up on upgrade-style calls). |
+| `c3 sync` stuck on `Uploading (0/3)` or `Comparing with server`, after `Ide.setupWorkspacePackages ... 404 Missing TypeMeta Ide` | Wrong app — `-s` points at `amdpoui`. Re-run against `/<env>/dev`. The real error (`Ide.writeEncodedContents 404`) only shows with `RUST_LOG=debug`. |
 
 A bad `-t` value gets cached, but the CLI recovers on the next call by re-authenticating, so a
 single failed attempt does not poison the cache.

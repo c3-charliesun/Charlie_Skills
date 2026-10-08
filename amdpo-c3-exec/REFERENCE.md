@@ -257,3 +257,75 @@ Notes:
   the end of a read.
 - `charlieamdpo03` needs none of this — it's Charlie's testing ground; read/write/delete freely
   there as long as it serves the task at hand.
+
+---
+
+## §6 Syncing a branch to an env (`c3 sync`)
+
+**Write operation.** Free on `charlieamdpo03`; needs §5 approval anywhere else.
+
+```bash
+SYNC_TARGET=https://stgazamd2.c3.ai/charlieamdpo03/dev   # the IDE app, NOT /amdpoui
+```
+
+### Recipes
+
+```bash
+# A PR's branch — find its worktree, then sync from there
+gh pr view 1174 --json headRefName -q .headRefName       # -> bugfix/cs/APO-1317
+git worktree list | grep 'APO-1317'                      # -> path of the worktree
+cd <that path> && c3 sync -f -v -s "$SYNC_TARGET" --no-tty
+
+# Latest develop — move a CLEAN worktree onto it (detached, no branch needed)
+git status --short                                       # must print nothing
+git fetch origin develop -q && git checkout --detach origin/develop
+c3 sync -f -s "$SYNC_TARGET" --no-tty
+
+# Keep syncing while you edit
+c3 sync -w -f -s "$SYNC_TARGET" --no-tty
+
+# Confirm the app survived
+c3 app status amdpoui -s https://stgazamd2.c3.ai/charlieamdpo03
+```
+
+When running it from an agent, run it in the background and wait for `✓ Synced <N> files` (or
+`Worker error`) in the output instead of polling with `sleep`. The output is a spinner stream —
+strip ANSI codes and split on `\r` to read it.
+
+### Which app to target
+
+`c3 app list -s https://stgazamd2.c3.ai/charlieamdpo03` shows two apps:
+
+| App | Root package | Role |
+| --- | --- | --- |
+| `amdpoui` | `amdPoUI` | runs the application — target for `c3 exec` |
+| `dev` | `ide` | the workbench app with the `Ide` upload type — target for `c3 sync` (and what the VS Code extension uses) |
+
+Packages are shared across the env, so code uploaded through `dev` is what `amdpoui` runs.
+
+### Evidence (2026-10-08)
+
+| Attempt | Result |
+| --- | --- |
+| `c3 sync -s .../charlieamdpo03/amdpoui` | spun on `Comparing with server` ~30 min, nothing uploaded |
+| same, with `-f` | spun on `Uploading (0/3)` indefinitely; the 3 files are package declarations (0 KB) |
+| same, with `-w -f -v` | same hang |
+| same, with `RUST_LOG=debug` | revealed `Worker error: Ide.writeEncodedContents failed with status 404 Not Found: Missing TypeMeta Ide in pkg amdPoUI` |
+| `c3 sync -f -v -s .../charlieamdpo03/dev` from PR 1174's worktree | `✓ Synced 774 files` in minutes; `amdpoui` stayed RUNNING |
+| `c3 sync -f -s .../charlieamdpo03/dev` from a worktree on `origin/develop` | `✓ Synced 777 files`; `amdpoui` stayed RUNNING |
+
+The `Ide.setupWorkspacePackages ... 404` warning printed at startup is the early tell that `-s`
+points at the wrong app. Against `dev` it does not appear.
+
+### Frontend-only changes: no sync needed
+
+Changes only under `amdpo/amdPoUI/react/src` run in a local Vite server that proxies `/api` to the
+env (`vite.config.js`), so the env never needs the code:
+
+```bash
+cd <worktree>/amdpo/amdPoUI/react
+VITE_REACT_C3_BASE_URL=https://stgazamd2.c3.ai VITE_REACT_C3_ENV=charlieamdpo03 \
+VITE_REACT_C3_APP=amdpoui VITE_REACT_C3_AUTH="$TOK" npm run dev    # serves http://localhost:8000
+```
+
+Passing these as env vars means no `.env` file is written in the worktree.
