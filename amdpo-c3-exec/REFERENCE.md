@@ -262,7 +262,9 @@ Notes:
 
 ## §6 Syncing a branch to an env (`c3 sync`)
 
-**Write operation.** Free on `charlieamdpo03`; needs §5 approval anywhere else.
+**Write operation.** Free on `charlieamdpo03`; needs §5 approval anywhere else. Inside an
+`amd-ticket-pipeline` run, hold the env lock first (`amd-ticket-pipeline/env-lock.sh`, Step 4b) —
+other agents may be syncing too.
 
 ```bash
 SYNC_TARGET=https://stgazamd2.c3.ai/charlieamdpo03/dev   # the IDE app, NOT /amdpoui

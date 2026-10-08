@@ -1,0 +1,13 @@
+{
+  "name": "shoot",
+  "version": "1.0.0",
+  "description": "Headless Playwright click-through that saves screenshots to a browsable gallery",
+  "type": "module",
+  "private": true,
+  "bin": {
+    "shoot": "shoot.mjs"
+  },
+  "dependencies": {
+    "playwright": "^1.55.0"
+  }
+}
