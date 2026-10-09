@@ -98,14 +98,24 @@ existing tests (`test/js-rhino/**`, `test/py/**`). Tests are authored here but r
    (`VITE_REACT_C3_AUTH`) without echoing it. It serves http://localhost:8000.
 4. **Photo shoot with `shoot`** (`charlie_skills/shoot/README.md`). Write a steps file in the
    session scratchpad that walks each acceptance criterion, with a `shot` per criterion, then run
-   `shoot http://localhost:8000/ --steps <file> --project apo-<id> --name "<what it shows>"`. Fix the
-   steps and re-run if a step fails for a selector reason; a real UI failure is a finding — fix the
-   code, re-sync, re-shoot. This step is Charlie's standing request for screenshots.
+   `shoot http://localhost:8000/ --steps <file> --project apo-<id> --name "<what it shows>"`. Always use
+   the same `--project apo-<id>` for every run of the ticket: they all land on one page for that
+   ticket, one section per run, so give each run a distinct `--name`. Each step waits up to 30s. When a
+   run fails, open its `FAILED step N` screenshot and decide why. If the steps file caused it (wrong
+   selector, timing, a default your script toggled), fix the steps, re-run, then delete the bad run
+   with `shoot --discard <run id>` so it never shows on Charlie's page. Keep a failed run only when
+   it shows a real problem in the app: that is a finding — fix the code, re-sync, re-shoot. This
+   step is Charlie's standing request for screenshots.
 5. **Share.** Make sure the gallery is served (`python3 -m http.server 4100 -d ~/.harness/shots` in
-   the background, unless port 4100 already answers). Send the PNGs with `SendUserFile`, plus the
-   gallery link `shoot` printed, with one line per screenshot mapping it to its acceptance criterion
-   and any console/network problems from the report. Then ask for the push OK. Screenshot cleanup is
-   automatic (`shoot` prunes runs older than 30 days) — don't delete runs by hand.
+   the background, unless port 4100 already answers). Send the PNGs that show each acceptance
+   criterion with `SendUserFile`, plus **one** link: the ticket page `shoot` printed
+   (`http://localhost:4100/apo-<id>/#run-<run id>`). That page has a section per run, a viewer that
+   opens when a photo is clicked (‹ › buttons or ←/→ keys, Esc to close) and a "Hide failed runs"
+   toggle. Never link a run folder or `http://localhost:4100/apo-<id>/<run id>/` — runs have no
+   pages of their own, only a bare file listing. Add one line per screenshot mapping it to its
+   acceptance criterion, and any console/network problems from the report. Then ask for the push
+   OK. Screenshot cleanup is automatic (`shoot` prunes runs older than 30 days) — don't delete runs
+   by hand; if the pages look out of date after upgrading `shoot`, run `shoot --rebuild`.
 6. **Hold everything until Charlie answers.** Keep the lock, the synced env, and the dev server up so
    he can click around http://localhost:8000 himself. When he answers, first run
    `$LOCK check APO-<id>`:
