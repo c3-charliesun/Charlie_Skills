@@ -4,7 +4,7 @@ description: >-
   Drive an AMD pricing ticket (C3PRICING / APO) from intake to an open PR — find or create
   the APO mirror, populate it, present a run plan, implement on a worktree, sync it to
   charlieamdpo03 under a shared env lock and send Charlie `shoot` screenshots for review, then
-  build + lint + code-review, push, and open a PR (no reviewers, "dont merge" label). Use when Charlie starts
+  build + lint + code-review, push, and open a PR (no reviewers, no label). Use when Charlie starts
   work on a C3PRICING or APO ticket in the c3amdpo repo. Invoke with either a C3PRICING id
   (e.g. C3PRICING-339) or an APO id (e.g. APO-1199).
 ---
@@ -137,9 +137,8 @@ self-review the diff against `C3-REVIEW-CHECKLIST.md` (skills-repo root; the sam
 uses), hand-checking the **[PY]** and **[TSX]** items. Fix every issue surfaced, then commit and push
 everything.
 
-**6. Open the PR.** Regular (non-draft) PR against `develop`, no reviewers, assignee = Charlie, label
-**`dont merge`** (exact — no apostrophe), title/body per Rule 3 with links to the APO and C3PRICING
-tickets. Once open, transition the APO ticket to **"In Review"**. If scope drifted or something worth
+**6. Open the PR.** Regular (non-draft) PR against `develop`, no reviewers, assignee = Charlie, no
+labels, title/body per Rule 3 with links to the APO and C3PRICING tickets. Once open, transition the APO ticket to **"In Review"**. If scope drifted or something worth
 recording surfaced (root cause, scope-out decision, follow-up), update the APO title/description;
 otherwise skip. The pipeline **ends here** — no build polling; do not schedule a wakeup.
 
