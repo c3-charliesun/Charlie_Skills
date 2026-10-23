@@ -170,7 +170,8 @@ c3 exec -s <appUrl> 'JSON.stringify({count: PoQuotesHeader.fetchCount()})'
 
 Pushes the code checked out in a folder to an env, so it runs there. Works from **any**
 worktree or the main checkout — no VS Code, no steps from Charlie. Default target is
-`charlieamdpo03`; `c3 sync` is a write, so the other envs need Rule 1 approval.
+`charlieamdpo03` (`charlieamdpo04` is an identical second personal env); `c3 sync` is a write, so
+the other envs need Rule 1 approval.
 
 ```bash
 cd <worktree root>          # the folder whose checked-out code you want on the env

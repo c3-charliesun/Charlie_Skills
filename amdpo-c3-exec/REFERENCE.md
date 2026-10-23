@@ -262,9 +262,10 @@ Notes:
 
 ## §6 Syncing a branch to an env (`c3 sync`)
 
-**Write operation.** Free on `charlieamdpo03`; needs §5 approval anywhere else. Inside an
-`amd-ticket-pipeline` run, hold the env lock first (`amd-ticket-pipeline/env-lock.sh`, Step 4b) —
-other agents may be syncing too.
+**Write operation.** Free on `charlieamdpo03` and `charlieamdpo04`; needs §5 approval anywhere else.
+Inside an `amd-ticket-pipeline` run, hold an env lock first (`amd-ticket-pipeline/env-lock.sh`, Step
+4b) — other agents may be syncing too, and the script hands you whichever of 03/04 is free. Swap
+that env's name into every URL below and use its dev-server port (03 → 8000, 04 → 8001).
 
 ```bash
 SYNC_TARGET=https://stgazamd2.c3.ai/charlieamdpo03/dev   # the IDE app, NOT /amdpoui
@@ -327,7 +328,7 @@ env (`vite.config.js`), so the env never needs the code:
 ```bash
 cd <worktree>/amdpo/amdPoUI/react
 VITE_REACT_C3_BASE_URL=https://stgazamd2.c3.ai VITE_REACT_C3_ENV=charlieamdpo03 \
-VITE_REACT_C3_APP=amdpoui VITE_REACT_C3_AUTH="$TOK" npm run dev    # serves http://localhost:8000
+VITE_REACT_C3_APP=amdpoui VITE_REACT_C3_AUTH="$TOK" npm run dev -- --port 8000    # 03 serves :8000; use --port 8001 and ENV=charlieamdpo04 for 04
 ```
 
 Passing these as env vars means no `.env` file is written in the worktree.
