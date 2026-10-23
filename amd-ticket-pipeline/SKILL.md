@@ -86,7 +86,7 @@ there. For tests, use the relevant C3 skills (`c3-testing` + the domain skill) a
 existing tests (`test/js-rhino/**`, `test/py/**`). Tests are authored here but run by CI — not locally.
 
 **4b. Env review on a free personal env.** Show Charlie the change running before asking to push.
-`LOCK=~/Desktop/charlie_skills/amd-ticket-pipeline/env-lock.sh`. The pool is `charlieamdpo03` and
+`LOCK=~/.claude/skills/amd-ticket-pipeline/env-lock.sh`. The pool is `charlieamdpo03` and
 `charlieamdpo04`; `$LOCK status` shows who holds what. Everything below uses `$ENV` (the env you got)
 and `$PORT` (its dev-server port: 8000 for 03, 8001 for 04).
 
