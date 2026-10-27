@@ -5,8 +5,8 @@ description: >-
   the APO mirror, populate it, present a run plan, implement on a worktree, sync it to
   a free personal env (charlieamdpo03 or charlieamdpo04) under a shared env lock, and run build + lint +
   code-review with fixes, `shoot` screenshots, push and open the PR — all unattended right after
-  implementation — then wait for Charlie to choose: request review from Harshal, run the PR reviewer
-  and post a comment, or squash-merge. Use when Charlie starts
+  implementation — then wait for Charlie to choose: run the PR reviewer skill and then
+  request review from Harshal, or run it and then squash-merge. Use when Charlie starts
   work on a C3PRICING or APO ticket in the c3amdpo repo. Invoke with either a C3PRICING id
   (e.g. C3PRICING-339) or an APO id (e.g. APO-1199).
 ---
@@ -153,40 +153,39 @@ failed, with the error. He decides: keep going with extra instructions, or abort
 is the exception: ask once, then follow "Environment access" below. Only on abort — or when
 Charlie stops the ticket — stop the dev server and `$LOCK release APO-<id>`.
 
-**6. 🔒 Final decision.** The PR is open and the screenshots are shared. Ask Charlie exactly this, with
-these three options (use `AskUserQuestion` if available):
+**6. 🔒 Final decision.** The PR is open and the screenshots are shared. Charlie always runs the PR
+reviewer first, so the only question is what happens after it. Ask exactly this (use `AskUserQuestion`
+if available):
 
 > The PR is up. What now?
-> 1. **Request a review** from Harshal
-> 2. **PR review** — run the PR reviewer and post its review as a comment
-> 3. **Merge** it
+> 1. **Run the PR reviewer skill, then request review from Harshal**
+> 2. **Run the PR reviewer skill, then merge it directly**
 
 When he answers, first run `$LOCK check APO-<id>`:
 - **Exit 1 (LOST)** — the wait ran past 6 hours and another agent took your env, so it now runs that
   agent's code. Tell Charlie which ticket took it and that anything he clicked since then wasn't this
   branch. Stop your dev server. If he only asked for changes, wait for an env again (Step 5 sub-step
   1 — you may land on the other one, so re-read `$ENV`/`$PORT`), re-sync, re-shoot, re-share. For
-  options 1–3 the env is no longer needed: just continue.
+  an answer to the question the env is no longer needed: just continue.
 - **Exit 0** — carry on.
 
 Then:
 - **Changes requested instead** (he clicked around and wants edits) → fix, re-run `$LOCK acquire`
   (refreshes the 6h clock on the same env), repeat Step 4b and Step 5 (re-sync, re-shoot, push to the
   same PR, re-share), then ask this question again.
-- **1. Request review** → stop the dev server, `$LOCK release APO-<id>`, then
-  `gh pr edit <pr> --add-reviewer <Harshal's GitHub login>` (find the login from the repo's recent
-  PR reviewers or collaborators; ask Charlie only if it's genuinely ambiguous). Report the link. The
-  pipeline ends; the APO ticket stays "In Review".
-- **2. PR review** → stop the dev server, `$LOCK release APO-<id>`, then run the `pr-reviewer` skill on
-  the PR (Charlie often runs this in a separate agent — if he says so, give him the PR number and
-  stop). It is Charlie's own PR, so pr-reviewer drafts the review as a comment and waits for his
-  approval before posting, per its own rules. After it is posted, ask again with only **Request a
-  review** and **Merge** (and "fix the findings" if it raised any; fixes go back through Step 4b
-  and Step 5).
-- **3. Merge** → stop the dev server, `$LOCK release APO-<id>`, squash-merge (always squash), then
-  transition the APO ticket to **"Done"**.
+- **Either option** → stop the dev server, `$LOCK release APO-<id>`, then run the `pr-reviewer` skill
+  on the PR (Charlie often runs this in a separate agent — if he says so, give him the PR number and
+  wait for him to tell you it's done). It is Charlie's own PR, so pr-reviewer drafts the review as a
+  comment and waits for his approval before posting, per its own rules. If the review raises
+  findings, fix them (Step 4b and Step 5, re-acquiring an env only if the change needs a re-shoot),
+  push to the same PR, and re-run the review. Once the review is posted and clean, do his chosen
+  follow-up **without asking again**:
+  - **1. Request review** → `gh pr edit <pr> --add-reviewer <Harshal's GitHub login>` (find the
+    login from the repo's recent PR reviewers or collaborators; ask Charlie only if it's genuinely
+    ambiguous). Report the link. The pipeline ends; the APO ticket stays "In Review".
+  - **2. Merge** → squash-merge (always squash), then transition the APO ticket to **"Done"**.
 
-Never merge, request a review, or post a review comment without Charlie's explicit answer here.
+Never merge, request a review, or post a review comment before Charlie has answered this question.
 
 ## Environment access
 
