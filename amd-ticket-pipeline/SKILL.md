@@ -3,24 +3,28 @@ name: amd-ticket-pipeline
 description: >-
   Drive an AMD pricing ticket (C3PRICING / APO) from intake to an open PR — find or create
   the APO mirror, populate it, present a run plan, implement on a worktree, sync it to
-  a free personal env (charlieamdpo03 or charlieamdpo04) under a shared env lock and send Charlie `shoot` screenshots for review, then
-  build + lint + code-review, push, and open a PR (no reviewers, no label). Use when Charlie starts
+  a free personal env (charlieamdpo03 or charlieamdpo04) under a shared env lock, and run build + lint +
+  code-review with fixes, `shoot` screenshots, push and open the PR — all unattended right after
+  implementation — then wait for Charlie to choose: run the PR reviewer skill and then
+  request review from Harshal, or run it and then squash-merge. Use when Charlie starts
   work on a C3PRICING or APO ticket in the c3amdpo repo. Invoke with either a C3PRICING id
   (e.g. C3PRICING-339) or an APO id (e.g. APO-1199).
 ---
 
 # AMD ticket → PR pipeline
 
-Single-invocation pipeline: intake → APO mirror → plan → implement → validate → open PR. Pause at the
-two 🔒 gates (run plan, push) for explicit approval.
+Single-invocation pipeline: intake → APO mirror → plan → implement → validate + screenshots → push +
+open PR → Charlie's decision. Pause at the two 🔒 gates (run plan, final decision on the open PR) for
+explicit approval.
 
 ## Hard rules
 
 1. **Approval gates — exactly two.** Wait for explicit approval at the **run plan** (Step 3, before any
-   code) and the **push** (Step 5 — given by Charlie's OK on the env review in Step 4b). Everything else
-   runs unattended: creating APO tickets, updating their bodies, transitioning them, and opening the PR
-   all proceed without asking. Report each with a link right after doing it — ungated means
-   unblocking, not silent, so Charlie can still follow the trail.
+   code) and the **final decision** (Step 6, once the PR is open with screenshots). Everything between
+   them runs unattended: implementing, build/lint/code-review and fixes, env sync, screenshots,
+   commit, push, opening the PR, and creating/updating/transitioning APO tickets all proceed without
+   asking. Report each with a link right after doing it — ungated means unblocking, not silent, so
+   Charlie can still follow the trail.
 2. **APO = Atlassian MCP, never the browser.** Every APO operation — read, search, create, update,
    transition, comment, link — goes through the Atlassian MCP tools. The browser is only for C3PRICING
    (`ontrack.amd.com`, AMD Okta — no MCP), and only when APO is thin or no mirror exists.
@@ -32,8 +36,8 @@ two 🔒 gates (run plan, push) for explicit approval.
 5. **Each personal env is one-agent-at-a-time.** There are two, `charlieamdpo03` and `charlieamdpo04`
    (same permissions, same token). Several pipeline runs may be live at once and each env holds one
    copy of the code, so never sync to an env, or run a dev server against it, without holding its
-   lock (Step 4b). Take whichever is free; if both are held, wait. Release only on Charlie's OK, or
-   when Charlie says to abort.
+   lock (Step 5). Take whichever is free; if both are held, wait. Release only once Charlie has made
+   his final decision (Step 6), or when Charlie says to abort.
 6. **A pasted token is saved, not just used.** When Charlie pastes a fresh token, write it into the
    shared `.env` right away (see "Environment access") so no other agent ever has to ask again.
 
@@ -85,7 +89,16 @@ reported by <reporter>). <AMD ask.> <If Rule 4 applies: note the prior mirror, l
 there. For tests, use the relevant C3 skills (`c3-testing` + the domain skill) and mimic the repo's
 existing tests (`test/js-rhino/**`, `test/py/**`). Tests are authored here but run by CI — not locally.
 
-**4b. Env review on a free personal env.** Show Charlie the change running before asking to push.
+As soon as the code is written, go straight on to Step 4b — do not stop to report the result and wait.
+
+**4b. Self-review and fix (unattended).** From `amdpo/amdPoUI/react`, run `npm run build` + `npm run lint`,
+and run Claude's `/code-review high` on the diff. `/code-review` skips `.py` and `react/**/*.tsx`, so
+also self-review the diff against `C3-REVIEW-CHECKLIST.md` (skills-repo root; the same checklist
+pr-reviewer uses), hand-checking the **[PY]** and **[TSX]** items. Fix every issue surfaced and
+re-run build + lint until clean. The unit/integration tests authored in Step 4 run in CI, not locally.
+Do this *before* the env review so the screenshots show the final code.
+
+**5. Env review, screenshots, push, open PR (unattended).** Show Charlie the change running.
 `LOCK=~/.claude/skills/amd-ticket-pipeline/env-lock.sh`. The pool is `charlieamdpo03` and
 `charlieamdpo04`; `$LOCK status` shows who holds what. Everything below uses `$ENV` (the env you got)
 and `$PORT` (its dev-server port: 8000 for 03, 8001 for 04).
@@ -116,46 +129,63 @@ and `$PORT` (its dev-server port: 8000 for 03, 8001 for 04).
    with `shoot --discard <run id>` so it never shows on Charlie's page. Keep a failed run only when
    it shows a real problem in the app: that is a finding — fix the code, re-sync, re-shoot. This
    step is Charlie's standing request for screenshots.
-5. **Share.** Make sure the gallery is served (`python3 -m http.server 4100 -d ~/.harness/shots` in
+5. **Commit, push, open the PR — right after the shoot, no approval needed.** Commit and push
+   everything. Open a regular (non-draft) PR against `develop`, no reviewers, assignee = Charlie, no
+   labels, title/body per Rule 3 with links to the APO and C3PRICING tickets. Once open, transition
+   the APO ticket to **"In Review"**. If scope drifted or something worth recording surfaced (root
+   cause, scope-out decision, follow-up), update the APO title/description; otherwise skip.
+6. **Share.** Make sure the gallery is served (`python3 -m http.server 4100 -d ~/.harness/shots` in
    the background, unless port 4100 already answers). Send the PNGs that show each acceptance
    criterion with `SendUserFile`, plus **one** link: the ticket page `shoot` printed
    (`http://localhost:4100/apo-<id>/#run-<run id>`). That page has a section per run, a viewer that
    opens when a photo is clicked (‹ › buttons or ←/→ keys, Esc to close) and a "Hide failed runs"
    toggle. Never link a run folder or `http://localhost:4100/apo-<id>/<run id>/` — runs have no
    pages of their own, only a bare file listing. Add one line per screenshot mapping it to its
-   acceptance criterion, and any console/network problems from the report. Tell Charlie which env
-   (`$ENV`) and port he can click around on. Then ask for the push OK. Screenshot cleanup is
-   automatic (`shoot` prunes runs older than 30 days) — don't delete runs by hand; if the pages
-   look out of date after upgrading `shoot`, run `shoot --rebuild`.
-6. **Hold everything until Charlie answers.** Keep the lock, the synced env, and the dev server up so
-   he can click around http://localhost:$PORT himself. When he answers, first run
-   `$LOCK check APO-<id>`:
-   - **Exit 1 (LOST)** — the review ran past 6 hours and another agent took your env, so it now runs
-     that agent's code. Tell Charlie which ticket took it and that anything he clicked since then
-     wasn't this branch. Stop your dev server. Then wait for an env again (sub-step 1 — you may
-     land on the other one, so re-read `$ENV`/`$PORT`), re-sync, re-shoot, and re-share before
-     treating any OK as the push approval.
-   - **Exit 0** — changes requested → fix, re-run `$LOCK acquire` (refreshes the 6h clock on the same
-     env), re-sync, re-shoot, re-share. OK → stop the dev server, `$LOCK release APO-<id>`, then go
-     to Step 5.
+   acceptance criterion, any console/network problems from the report, and the **PR link**. Tell
+   Charlie which env (`$ENV`) and port he can click around on. Screenshot cleanup is automatic
+   (`shoot` prunes runs older than 30 days) — don't delete runs by hand; if the pages look out of
+   date after upgrading `shoot`, run `shoot --rebuild`.
+7. **Hold everything and go to Step 6.** Keep the lock, the synced env, and the dev server up so he
+   can click around http://localhost:$PORT himself. No build polling; do not schedule a wakeup.
+
 If something breaks (sync error, dev server won't start), **keep the lock** and tell Charlie what
 failed, with the error. He decides: keep going with extra instructions, or abort. An expired token
 is the exception: ask once, then follow "Environment access" below. Only on abort — or when
 Charlie stops the ticket — stop the dev server and `$LOCK release APO-<id>`.
 
-**5. 🔒 Push gate → self-review, fix, commit, push.** Charlie's OK in Step 4b is the push approval.
-Then, from `amdpo/amdPoUI/react`, run `npm run build` + `npm run lint`, and run
-Claude's `/code-review high` on the diff. `/code-review` skips `.py` and `react/**/*.tsx`, so also
-self-review the diff against `C3-REVIEW-CHECKLIST.md` (skills-repo root; the same checklist pr-reviewer
-uses), hand-checking the **[PY]** and **[TSX]** items. Fix every issue surfaced, then commit and push
-everything.
+**6. 🔒 Final decision.** The PR is open and the screenshots are shared. Charlie always runs the PR
+reviewer first, so the only question is what happens after it. Ask exactly this (use `AskUserQuestion`
+if available):
 
-**6. Open the PR.** Regular (non-draft) PR against `develop`, no reviewers, assignee = Charlie, no
-labels, title/body per Rule 3 with links to the APO and C3PRICING tickets. Once open, transition the APO ticket to **"In Review"**. If scope drifted or something worth
-recording surfaced (root cause, scope-out decision, follow-up), update the APO title/description;
-otherwise skip. The pipeline **ends here** — no build polling; do not schedule a wakeup.
+> The PR is up. What now?
+> 1. **Run the PR reviewer skill, then request review from Harshal**
+> 2. **Run the PR reviewer skill, then merge it directly**
 
-**Merge — only when Charlie says so.** Always squash-merge, then transition the APO ticket to **"Done"**.
+When he answers, first run `$LOCK check APO-<id>`:
+- **Exit 1 (LOST)** — the wait ran past 6 hours and another agent took your env, so it now runs that
+  agent's code. Tell Charlie which ticket took it and that anything he clicked since then wasn't this
+  branch. Stop your dev server. If he only asked for changes, wait for an env again (Step 5 sub-step
+  1 — you may land on the other one, so re-read `$ENV`/`$PORT`), re-sync, re-shoot, re-share. For
+  an answer to the question the env is no longer needed: just continue.
+- **Exit 0** — carry on.
+
+Then:
+- **Changes requested instead** (he clicked around and wants edits) → fix, re-run `$LOCK acquire`
+  (refreshes the 6h clock on the same env), repeat Step 4b and Step 5 (re-sync, re-shoot, push to the
+  same PR, re-share), then ask this question again.
+- **Either option** → stop the dev server, `$LOCK release APO-<id>`, then run the `pr-reviewer` skill
+  on the PR (Charlie often runs this in a separate agent — if he says so, give him the PR number and
+  wait for him to tell you it's done). It is Charlie's own PR, so pr-reviewer drafts the review as a
+  comment and waits for his approval before posting, per its own rules. If the review raises
+  findings, fix them (Step 4b and Step 5, re-acquiring an env only if the change needs a re-shoot),
+  push to the same PR, and re-run the review. Once the review is posted and clean, do his chosen
+  follow-up **without asking again**:
+  - **1. Request review** → `gh pr edit <pr> --add-reviewer <Harshal's GitHub login>` (find the
+    login from the repo's recent PR reviewers or collaborators; ask Charlie only if it's genuinely
+    ambiguous). Report the link. The pipeline ends; the APO ticket stays "In Review".
+  - **2. Merge** → squash-merge (always squash), then transition the APO ticket to **"Done"**.
+
+Never merge, request a review, or post a review comment before Charlie has answered this question.
 
 ## Environment access
 
