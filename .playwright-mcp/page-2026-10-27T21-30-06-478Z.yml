@@ -1,0 +1,75 @@
+- generic [ref=f10e1]:
+  - navigation [ref=f10e2]:
+    - generic [ref=f10e3]:
+      - link [ref=f10e4] [cursor=pointer]:
+        - /url: https://www.c3.ai/
+        - img "C3.ai" [ref=f10e5]
+      - generic [ref=f10e6]:
+        - list [ref=f10e7]:
+          - listitem [ref=f10e8]:
+            - button "Links" [ref=f10e9] [cursor=pointer]
+          - listitem [ref=f10e10]:
+            - button "Tools" [ref=f10e11] [cursor=pointer]
+        - list [ref=f10e12]:
+          - listitem [ref=f10e13]:
+            - generic "https://stgazamd2.c3.ai" [ref=f10e14]:
+              - paragraph [ref=f10e15]: SCA
+              - paragraph [ref=f10e16]: test
+          - listitem [ref=f10e17]:
+            - button "amdpoqa • amdpricingopt" [ref=f10e18] [cursor=pointer]
+          - text: 
+  - main [ref=f10e19]:
+    - generic [ref=f10e21]:
+      - list [ref=f10e23]:
+        - listitem "Home" [ref=f10e24]:
+          - generic "Home" [ref=f10e26]: 
+          - generic [ref=f10e28] [cursor=pointer]: ×
+        - listitem "Notebook" [ref=f10e30]:
+          - generic "Notebook" [ref=f10e32]: 
+          - generic [ref=f10e34] [cursor=pointer]: ×
+      - generic [ref=f10e39]:
+        - generic [ref=f10e40]:
+          - group [ref=f10e41]:
+            - button "" [ref=f10e42] [cursor=pointer]
+            - button "" [ref=f10e44] [cursor=pointer]
+            - button "" [ref=f10e46] [cursor=pointer]
+            - button "" [ref=f10e48] [cursor=pointer]
+            - button "" [ref=f10e50] [cursor=pointer]
+            - button "" [ref=f10e52] [cursor=pointer]
+            - button "" [ref=f10e54] [cursor=pointer]
+            - button "" [ref=f10e56] [cursor=pointer]
+            - button "" [ref=f10e58] [cursor=pointer]
+            - button "b" [ref=f10e60] [cursor=pointer]
+            - button "" [ref=f10e62] [cursor=pointer]
+            - button "" [ref=f10e64] [cursor=pointer]
+            - button "" [ref=f10e66] [cursor=pointer]
+            - button "" [ref=f10e68] [cursor=pointer]
+          - text: Connecting…
+        - generic [ref=f10e70]:
+          - generic [ref=f10e71]:
+            - link "" [ref=f10e72] [cursor=pointer]:
+              - /url: "#"
+            - link "" [ref=f10e74] [cursor=pointer]:
+              - /url: "#"
+            - generic "cell options" [ref=f10e76]:
+              - link "" [ref=f10e77] [cursor=pointer]:
+                - /url: "#"
+              - text:     
+            - link "" [ref=f10e79] [cursor=pointer]:
+              - /url: "#"
+            - link "" [ref=f10e81] [cursor=pointer]:
+              - /url: "#"
+          - generic [ref=f10e83]: "[ ]:"
+          - generic [ref=f10e85]:
+            - generic [ref=f10e87]: "1"
+            - textbox [active] [ref=f10e91]
+          - text:     
+  - generic [ref=f10e93]:
+    - generic [ref=f10e94]:
+      - text: "server: cpu"
+      - generic [ref=f10e95]: 0%
+      - text: memory
+      - generic "7674 / 15502 MB" [ref=f10e96]: 50%
+    - link "" [ref=f10e97] [cursor=pointer]:
+      - /url: "#"
+  - text:          

@@ -1,0 +1,53 @@
+- generic [active] [ref=f14e1]:
+  - navigation [ref=f14e2]:
+    - generic [ref=f14e3]:
+      - link [ref=f14e4]:
+        - /url: https://www.c3.ai/
+        - img "C3.ai" [ref=f14e5]
+      - generic [ref=f14e6]:
+        - list [ref=f14e7]:
+          - listitem [ref=f14e8]:
+            - button "Links" [ref=f14e9]
+          - listitem [ref=f14e10]:
+            - button "Tools" [ref=f14e11]
+        - list [ref=f14e12]:
+          - listitem [ref=f14e13]:
+            - generic "https://stgazamd2.c3.ai" [ref=f14e14]:
+              - paragraph [ref=f14e15]: SCA
+              - paragraph [ref=f14e16]: dev
+          - listitem [ref=f14e17]:
+            - button "amdpoqa • c3" [ref=f14e18]
+          - text: 
+  - status [ref=f14e20]:
+    - generic [ref=f14e21]: Loading...
+  - main [ref=f14e22]:
+    - generic [ref=f14e24]:
+      - list [ref=f14e26]:
+        - listitem "Home" [ref=f14e27]:
+          - generic "Home" [ref=f14e29]: 
+          - generic [ref=f14e31]: ×
+      - generic [ref=f14e36]:
+        - heading "Console" [level=1] [ref=f14e37]
+        - paragraph [ref=f14e38]:
+          - text: Open your developer tools to execute code such as
+          - code [ref=f14e39]: c3Grid()
+          - text: in the client. See the
+          - link "Help" [ref=f14e40]:
+            - /url: "#"
+          - text: page (Tools menu) for all the commands. Alternately, you can use the
+          - link "Notebook" [ref=f14e41]:
+            - /url: "#"
+          - text: to execute code in the server.
+        - paragraph [ref=f14e42]:
+          - text: Copyright © 2009−2026
+          - link "C3.ai" [ref=f14e43]:
+            - /url: https://www.c3.ai
+  - generic [ref=f14e44]:
+    - generic [ref=f14e45]:
+      - text: "server: cpu"
+      - generic [ref=f14e46]: 0%
+      - text: memory
+      - generic "4652 / 8191 MB" [ref=f14e47]: 57%
+    - link "" [ref=f14e48]:
+      - /url: "#"
+  - text:          

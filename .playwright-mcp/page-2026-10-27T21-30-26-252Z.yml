@@ -1,0 +1,76 @@
+- generic [active] [ref=f11e1]:
+  - navigation [ref=f11e2]:
+    - generic [ref=f11e3]:
+      - link [ref=f11e4] [cursor=pointer]:
+        - /url: https://www.c3.ai/
+        - img "C3.ai" [ref=f11e5]
+      - generic [ref=f11e6]:
+        - list [ref=f11e7]:
+          - listitem [ref=f11e8]:
+            - button "Links" [ref=f11e9] [cursor=pointer]
+          - listitem [ref=f11e10]:
+            - button "Tools" [ref=f11e11] [cursor=pointer]
+        - list [ref=f11e12]:
+          - listitem [ref=f11e13]:
+            - generic "https://stgazamd2.c3.ai" [ref=f11e14]:
+              - paragraph [ref=f11e15]: SCA
+              - paragraph [ref=f11e16]: test
+          - listitem [ref=f11e17]:
+            - button "amdpoqa • amdpricingopt" [ref=f11e18] [cursor=pointer]
+          - text: 
+  - main [ref=f11e19]:
+    - generic [ref=f11e21]:
+      - list [ref=f11e23]:
+        - listitem "Home" [ref=f11e24]:
+          - generic "Home" [ref=f11e26]: 
+          - generic [ref=f11e28] [cursor=pointer]: ×
+        - listitem "Notebook" [ref=f11e30]:
+          - generic "Notebook" [ref=f11e32]: 
+          - generic [ref=f11e34] [cursor=pointer]: ×
+      - generic [ref=f11e39]:
+        - generic [ref=f11e40]:
+          - group [ref=f11e41]:
+            - button "" [ref=f11e42] [cursor=pointer]
+            - button "" [ref=f11e44] [cursor=pointer]
+            - button "" [ref=f11e46] [cursor=pointer]
+            - button "" [ref=f11e48] [cursor=pointer]
+            - button "" [ref=f11e50] [cursor=pointer]
+            - button "" [ref=f11e52] [cursor=pointer]
+            - button "" [ref=f11e54] [cursor=pointer]
+            - button "" [ref=f11e56] [cursor=pointer]
+            - button "" [ref=f11e58] [cursor=pointer]
+            - button "b" [ref=f11e60] [cursor=pointer]
+            - button "" [ref=f11e62] [cursor=pointer]
+            - button "" [ref=f11e64] [cursor=pointer]
+            - button "" [ref=f11e66] [cursor=pointer]
+            - button "" [ref=f11e68] [cursor=pointer]
+          - text: Connected
+        - generic [ref=f11e70]:
+          - generic [ref=f11e71]:
+            - link "" [ref=f11e72] [cursor=pointer]:
+              - /url: "#"
+            - link "" [ref=f11e74] [cursor=pointer]:
+              - /url: "#"
+            - generic "cell options" [ref=f11e76]:
+              - link "" [ref=f11e77] [cursor=pointer]:
+                - /url: "#"
+              - text:     
+            - link "" [ref=f11e79] [cursor=pointer]:
+              - /url: "#"
+            - link "" [ref=f11e81] [cursor=pointer]:
+              - /url: "#"
+          - generic [ref=f11e83]: "[ ]:"
+          - generic [ref=f11e85]:
+            - generic [ref=f11e87]: "1"
+            - textbox [ref=f11e91]:
+              - generic [ref=f11e92]: JSON.parse(JSON.stringify(await Pkg.resolvedVersions())).filter(v => /^amdPoUI:|^platform:/.test(v))
+          - text:     
+  - generic [ref=f11e93]:
+    - generic [ref=f11e94]:
+      - text: "server: cpu"
+      - generic [ref=f11e95]: 0%
+      - text: memory
+      - generic "8570 / 15502 MB" [ref=f11e96]: 55%
+    - link "" [ref=f11e97] [cursor=pointer]:
+      - /url: "#"
+  - text:          

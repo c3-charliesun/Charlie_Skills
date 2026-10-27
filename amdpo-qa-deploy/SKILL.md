@@ -3,8 +3,8 @@ name: amdpo-qa-deploy
 description: >-
   Deploy an amdPoUI build to the amdpoqa QA environment on stgazamd2.c3.ai end-to-end —
   pull the package + server version from a Studio build, pause InvalidationQueues, drain task
-  nodes, run the app upgrade, wait out the 503, restore nodes, resume queues, and post the
-  deployment summary to the AMD SE Teams chat. Use when Charlie wants to push a build to QA /
+  nodes, run the app upgrade, wait out the 503, restore nodes, resume queues, and draft the
+  deployment summary for Charlie to post to the AMD SE Teams chat. Use when Charlie wants to push a build to QA /
   upgrade amdpoqa / run the QA deployment runbook for amdPoUI on stgazamd2.
 ---
 
@@ -35,8 +35,8 @@ Run the steps **in order** — each depends on the previous. Verbatim console/AP
 6. **A recovered page title is not proof the build landed.** Step 5 is only green once
    `Pkg.resolvedVersions()` shows the Step 1 package + server versions. Never resume queues or
    restore nodes before that.
-7. **Teams post is a write action — get Charlie's approval on the drafted table before posting.**
-   Post to the **SEs ONLY - AMD PO Working Team** chat, nowhere else.
+7. **Never send the Teams message yourself.** The Teams connector has no send permission. Step 8 only
+   drafts the summary in chat; Charlie copies it into the **SEs ONLY - AMD PO Working Team** chat himself.
 
 ## Steps
 
@@ -69,8 +69,8 @@ The title alone only proves the proxy is serving. [REFERENCE.md](REFERENCE.md) �
 **7. Resume InvalidationQueues.** `await InvalidationQueue.resume()`, then verify
 `InvalidationQueue.allPaused()` comes back **empty**. [REFERENCE.md](REFERENCE.md) §7.
 
-**8. Post the deployment summary to Teams.** 🔒 Draft, show Charlie, post on approval. Post to the
-**SEs ONLY - AMD PO Working Team** chat a table of **APO ↔ C3PRICING ↔ Assignee ↔ What it does**.
+**8. Draft the deployment summary for Teams.** Show it in chat as a ready-to-paste block; do **not** send it —
+Charlie pastes it into the **SEs ONLY - AMD PO Working Team** chat himself. The table has **APO ↔ C3PRICING ↔ Assignee ↔ What it does**.
 The "from" SHA is the one captured in Step 2 (pre-upgrade `amdPoUI` version on QA); the "to" SHA is
 Step 1's. Diff them with `gh api repos/c3-e/c3amdpo/compare/<from>...<to>` to list the merged PRs. If the
 last `QA upgrade <SHA> → <SHA>` message in the chat disagrees with the Step 2 SHA, flag it to Charlie.
@@ -90,4 +90,4 @@ last `QA upgrade <SHA> → <SHA>` message in the chat disagrees with the Step 2 
 | Upgrade-landed check | `Pkg.resolvedVersions()` → `amdPoUI:` + `platform:` match Step 1 |
 | Task node target | drain 0/0/0 → `taskCount 0`; restore 10/10/30 → `taskCount 10` (total 12) |
 | GitHub repo | `c3-e/c3amdpo` |
-| Teams target | **SEs ONLY - AMD PO Working Team** chat |
+| Teams target | **SEs ONLY - AMD PO Working Team** chat — Charlie pastes, Claude never sends |

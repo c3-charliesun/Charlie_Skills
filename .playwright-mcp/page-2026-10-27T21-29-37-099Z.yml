@@ -1,0 +1,51 @@
+- generic [ref=f7e3]:
+  - banner [ref=f7e4]:
+    - button [ref=f7e5] [cursor=pointer]:
+      - img "C3 AI Studio" [ref=f7e6]
+    - button "Notifications" [ref=f7e9] [cursor=pointer]
+  - generic [ref=f7e13]:
+    - navigation [ref=f7e14]:
+      - generic [ref=f7e15]:
+        - link "Home" [ref=f7e17] [cursor=pointer]:
+          - /url: /c3ai/studio/home
+        - link "Apps" [ref=f7e23] [cursor=pointer]:
+          - /url: /c3ai/studio/apps
+        - link "Envs" [ref=f7e29] [cursor=pointer]:
+          - /url: /c3ai/studio/envs
+        - link "Releases" [ref=f7e35] [cursor=pointer]:
+          - /url: /c3ai/studio/release-management/branches
+        - link "Admin" [ref=f7e41] [cursor=pointer]:
+          - /url: /c3ai/studio/admin/services
+      - button "Appearance settings" [ref=f7e56] [cursor=pointer]:
+        - generic [ref=f7e59]: Appearance
+    - navigation [ref=f7e60]:
+      - generic:
+        - generic: Releases
+        - generic:
+          - link "Branches":
+            - /url: /c3ai/studio/release-management/branches
+          - link "Branch Configurations":
+            - /url: /c3ai/studio/release-management/configurations
+          - link "Build Queue":
+            - /url: /c3ai/studio/release-management/build-queue
+          - link "Executors":
+            - /url: /c3ai/studio/release-management/executors
+          - link "Artifacts":
+            - /url: /c3ai/studio/release-management/artifacts
+          - link "Admin":
+            - /url: /c3ai/studio/release-management/admin
+      - generic:
+        - text: "Branches:"
+        - strong: Releases
+      - button "nav.expandSecondary" [ref=f7e61] [cursor=pointer]
+    - main [ref=f7e64]:
+      - navigation "Breadcrumb navigation" [ref=f7e66]:
+        - list [ref=f7e67]:
+          - generic [ref=f7e68]: Releases
+          - link "Branches" [ref=f7e75] [cursor=pointer]:
+            - /url: /c3ai/studio/release-management/branches
+          - link "github-c3-e-c3amdpo--po-develop--develop" [ref=f7e81] [cursor=pointer]:
+            - /url: /c3ai/studio/release-management/branches/github-c3-e-c3amdpo--po-develop--develop
+          - generic [ref=f7e86]: "660"
+      - status [ref=f7e90]:
+        - generic [ref=f7e92]: Loading tool...

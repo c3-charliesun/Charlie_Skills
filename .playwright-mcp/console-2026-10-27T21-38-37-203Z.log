@@ -1,0 +1,5 @@
+[    2995ms] [LOG] loaded full type system (%d types) in %s 7802 2.2s @ https://stgazamd2.c3.ai/amdpoqa/amdpricingopt/console/assets/index-BrypRY89.js:27
+[    3884ms] [LOG] loaded context (%s) in %s amdpoqa • amdpricingopt 890ms @ https://stgazamd2.c3.ai/amdpoqa/amdpricingopt/console/assets/index-BrypRY89.js:27
+[    6763ms] [LOG] Listening for type changes… @ https://stgazamd2.c3.ai/amdpoqa/amdpricingopt/console/assets/index-BrypRY89.js:0
+[   72293ms] [ERROR] Failed to load resource: the server responded with a status of 404 () @ https://stgazamd2.c3.ai/amdpoqa/amdpricingopt/api/8/Js.TurboJsSession/execute:0
+[  101779ms] [ERROR] Failed to load resource: the server responded with a status of 404 () @ https://stgazamd2.c3.ai/amdpoqa/amdpricingopt/api/8/Js.TurboJsSession/execute:0

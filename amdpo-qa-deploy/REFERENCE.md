@@ -146,9 +146,11 @@ return { stillPaused: paused, stillPausedCount: paused.length, queueCount: stats
 `stillPausedCount: 0` with `queueCount: 22` means every queue is running again. The same
 `countAll().paused` caveat from §2 applies — that field does not exist.
 
-## §8 — Post deployment summary to AMD SE Teams chat
+## §8 — Draft deployment summary for the AMD SE Teams chat
 
-Post to the **SEs ONLY - AMD PO Working Team** chat a table of:
+Do **not** send this. The Teams connector lacks `ChatMessage.Send`, so Charlie copies the draft into the
+**SEs ONLY - AMD PO Working Team** chat himself. Output it in chat as a ready-to-paste block (header line
+`QA upgrade <from_SHA7> → <to_SHA7> (build <N>)` plus a table):
 
 | APO | C3PRICING | Assignee | What it does |
 | --- | --- | --- | --- |
@@ -161,4 +163,4 @@ gh api repos/c3-e/c3amdpo/compare/<from_SHA>...<to_SHA> --jq '.commits[].commit.
 ```
 
 As a cross-check, compare the §2 SHA with the last `QA upgrade <SHA> → <SHA>` message in the chat; if
-they disagree, flag it to Charlie. Draft the table, show Charlie, and post only on approval.
+they disagree, flag it to Charlie.

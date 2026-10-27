@@ -1,0 +1,14 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e6]:
+    - heading [level=1] [ref=e7]:
+      - text: Connecting to
+      - img "stgazamd2.c3.ai" [ref=e9]
+    - paragraph [ref=e10]: Sign in with your account to access stgazamd2.c3.ai
+  - generic [ref=e12]:
+    - paragraph [ref=e13]:
+      - text: Powered by
+      - link "Okta" [ref=e14] [cursor=pointer]:
+        - /url: https://www.okta.com/?internal_link=wic_login
+    - paragraph [ref=e15]:
+      - link "Privacy Policy" [ref=e16] [cursor=pointer]:
+        - /url: /privacy

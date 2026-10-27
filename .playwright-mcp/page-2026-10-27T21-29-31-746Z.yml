@@ -1,0 +1,49 @@
+- generic [ref=f6e3]:
+  - banner [ref=f6e4]:
+    - button [ref=f6e5] [cursor=pointer]:
+      - img "C3 AI Studio" [ref=f6e6]
+    - button "Notifications" [ref=f6e9] [cursor=pointer]
+  - generic [ref=f6e13]:
+    - navigation [ref=f6e14]:
+      - generic [ref=f6e15]:
+        - link "Home" [ref=f6e17] [cursor=pointer]:
+          - /url: /c3ai/studio/home
+        - link "Apps" [ref=f6e23] [cursor=pointer]:
+          - /url: /c3ai/studio/apps
+        - link "Envs" [ref=f6e29] [cursor=pointer]:
+          - /url: /c3ai/studio/envs
+        - link "Releases" [ref=f6e35] [cursor=pointer]:
+          - /url: /c3ai/studio/release-management/branches
+        - link "Admin" [ref=f6e41] [cursor=pointer]:
+          - /url: /c3ai/studio/admin/services
+      - button "Appearance settings" [ref=f6e56] [cursor=pointer]:
+        - generic [ref=f6e59]: Appearance
+    - navigation [ref=f6e60]:
+      - generic:
+        - generic: Releases
+        - generic:
+          - link "Branches":
+            - /url: /c3ai/studio/release-management/branches
+          - link "Branch Configurations":
+            - /url: /c3ai/studio/release-management/configurations
+          - link "Build Queue":
+            - /url: /c3ai/studio/release-management/build-queue
+          - link "Executors":
+            - /url: /c3ai/studio/release-management/executors
+          - link "Artifacts":
+            - /url: /c3ai/studio/release-management/artifacts
+          - link "Admin":
+            - /url: /c3ai/studio/release-management/admin
+      - generic:
+        - text: "Branches:"
+        - strong: Releases
+      - button "nav.expandSecondary" [ref=f6e61] [cursor=pointer]
+    - main [ref=f6e64]:
+      - navigation "Breadcrumb navigation" [ref=f6e66]:
+        - list [ref=f6e67]:
+          - generic [ref=f6e68]: Releases
+          - link "Branches" [ref=f6e75] [cursor=pointer]:
+            - /url: /c3ai/studio/release-management/branches
+          - generic [ref=f6e80]: github-c3-e-c3amdpo--po-develop--develop
+      - status [ref=f6e84]:
+        - generic [ref=f6e86]: Loading tool...
