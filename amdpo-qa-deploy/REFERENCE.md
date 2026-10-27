@@ -42,6 +42,16 @@ check then reports "0 paused" whether or not the pause took effect, silently dis
 that protects the upgrade. `InvalidationQueue.isPaused()` is also unusable here: on the base type
 it throws `Function isPaused can not be called on base InvalidationQueue type`.
 
+**Capture the pre-upgrade version (the Step 8 "from" SHA).** While still on the pre-upgrade app:
+
+```js
+const rv = await Pkg.resolvedVersions();
+return JSON.parse(JSON.stringify(rv)).filter(v => /^amdPoUI:/.test(v));
+```
+
+The version embeds the full commit SHA — the 40-hex segment after the platform version, e.g.
+`amdPoUI:1.1.0+583.8.9.3.139.<SHA>.develop.uid...`. Note it; the upgrade overwrites it.
+
 ## §3 — Drain task nodes to 0
 
 ```js
@@ -143,6 +153,12 @@ Post to the **SEs ONLY - AMD PO Working Team** chat a table of:
 | APO | C3PRICING | Assignee | What it does |
 | --- | --- | --- | --- |
 
-Find the "from" SHA by checking recent messages in that chat for the last
-`QA upgrade <SHA> → <SHA>` message — this tracks the actual QA state, which may differ from the CI
-build SHAs. Draft the table, show Charlie, and post only on approval.
+The "from" SHA is the 40-hex SHA embedded in the pre-upgrade `amdPoUI` version captured in §2; the
+"to" SHA is the one from §1. List the merged PRs between them:
+
+```bash
+gh api repos/c3-e/c3amdpo/compare/<from_SHA>...<to_SHA> --jq '.commits[].commit.message'
+```
+
+As a cross-check, compare the §2 SHA with the last `QA upgrade <SHA> → <SHA>` message in the chat; if
+they disagree, flag it to Charlie. Draft the table, show Charlie, and post only on approval.

@@ -48,6 +48,8 @@ Run the steps **in order** — each depends on the previous. Verbatim console/AP
 
 **2. Pause InvalidationQueues.** On the **amdpricingopt** console, `await InvalidationQueue.pause()`,
 then verify `InvalidationQueue.allPaused()` lists **all 22** queues. [REFERENCE.md](REFERENCE.md) §2.
+Before moving on, also capture the **currently deployed** `amdPoUI` version with
+`Pkg.resolvedVersions()` — its embedded commit SHA is the Step 8 "from" SHA. [REFERENCE.md](REFERENCE.md) §2.
 
 **3. Drain task nodes to 0.** `App.nodePool('task').setNodeCount(0,0,0).update()`, then poll every
 30s until `taskCount === 0` (leaders remain). [REFERENCE.md](REFERENCE.md) §3.
@@ -69,8 +71,9 @@ The title alone only proves the proxy is serving. [REFERENCE.md](REFERENCE.md) �
 
 **8. Post the deployment summary to Teams.** 🔒 Draft, show Charlie, post on approval. Post to the
 **SEs ONLY - AMD PO Working Team** chat a table of **APO ↔ C3PRICING ↔ Assignee ↔ What it does**.
-The "from" SHA comes from the last `QA upgrade <SHA> → <SHA>` message in that chat (it tracks the
-actual QA state, which can differ from CI build SHAs) — not from the git history.
+The "from" SHA is the one captured in Step 2 (pre-upgrade `amdPoUI` version on QA); the "to" SHA is
+Step 1's. Diff them with `gh api repos/c3-e/c3amdpo/compare/<from>...<to>` to list the merged PRs. If the
+last `QA upgrade <SHA> → <SHA>` message in the chat disagrees with the Step 2 SHA, flag it to Charlie.
 [REFERENCE.md](REFERENCE.md) §8.
 
 ## Reference values
