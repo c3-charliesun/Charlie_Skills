@@ -135,3 +135,14 @@ return { stillPaused: paused, stillPausedCount: paused.length, queueCount: stats
 
 `stillPausedCount: 0` with `queueCount: 22` means every queue is running again. The same
 `countAll().paused` caveat from §2 applies — that field does not exist.
+
+## §8 — Post deployment summary to AMD SE Teams chat
+
+Post to the **SEs ONLY - AMD PO Working Team** chat a table of:
+
+| APO | C3PRICING | Assignee | What it does |
+| --- | --- | --- | --- |
+
+Find the "from" SHA by checking recent messages in that chat for the last
+`QA upgrade <SHA> → <SHA>` message — this tracks the actual QA state, which may differ from the CI
+build SHAs. Draft the table, show Charlie, and post only on approval.
