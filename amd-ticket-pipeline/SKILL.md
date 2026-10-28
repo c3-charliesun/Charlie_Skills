@@ -5,8 +5,8 @@ description: >-
   the APO mirror, populate it, present a run plan, implement on a worktree, sync it to
   a free personal env (charlieamdpo03 or charlieamdpo04) under a shared env lock, and run build + lint +
   code-review with fixes, `shoot` screenshots, push and open the PR — all unattended right after
-  implementation — then wait for Charlie to choose: run the PR reviewer skill and then
-  request review from Harshal, or run it and then squash-merge. Use when Charlie starts
+  implementation — then wait for Charlie to choose: have a separate reviewer sub-agent run the PR reviewer skill and
+  code review and then request review from Harshal, or run it and then squash-merge. Use when Charlie starts
   work on a C3PRICING or APO ticket in the c3amdpo repo. Invoke with either a C3PRICING id
   (e.g. C3PRICING-339) or an APO id (e.g. APO-1199).
 ---
@@ -158,8 +158,8 @@ reviewer first, so the only question is what happens after it. Ask exactly this 
 if available):
 
 > The PR is up. What now?
-> 1. **Run the PR reviewer skill, then request review from Harshal**
-> 2. **Run the PR reviewer skill, then merge it directly**
+> 1. **Review the PR with a reviewer sub-agent, then request review from Harshal**
+> 2. **Review the PR with a reviewer sub-agent, then merge it directly**
 
 When he answers, first run `$LOCK check APO-<id>`:
 - **Exit 1 (LOST)** — the wait ran past 6 hours and another agent took your env, so it now runs that
@@ -173,13 +173,29 @@ Then:
 - **Changes requested instead** (he clicked around and wants edits) → fix, re-run `$LOCK acquire`
   (refreshes the 6h clock on the same env), repeat Step 4b and Step 5 (re-sync, re-shoot, push to the
   same PR, re-share), then ask this question again.
-- **Either option** → stop the dev server, `$LOCK release APO-<id>`, then run the `pr-reviewer` skill
-  on the PR (Charlie often runs this in a separate agent — if he says so, give him the PR number and
-  wait for him to tell you it's done). It is Charlie's own PR, so pr-reviewer drafts the review as a
-  comment and waits for his approval before posting, per its own rules. If the review raises
-  findings, fix them (Step 4b and Step 5, re-acquiring an env only if the change needs a re-shoot),
-  push to the same PR, and re-run the review. Once the review is posted and clean, do his chosen
-  follow-up **without asking again**:
+- **Either option** → stop the dev server, `$LOCK release APO-<id>`, then get the PR reviewed by a
+  **separate reviewer sub-agent**, never in this session. This session wrote the code, so it must not
+  grade its own work; the reviewer starts fresh and sees only the PR. (Charlie sometimes runs the
+  review in his own separate agent — if he says so, give him the PR number and wait for him to tell
+  you it's done.)
+
+  Spawn one sub-agent (`Agent`, `subagent_type: "general-purpose"`) with a self-contained prompt.
+  Give it the PR number, the repo path, and these instructions: invoke the `pr-reviewer` skill on the
+  PR **and** run `/code-review high` on it (`/code-review high <PR number>`); merge both into one
+  verdict and one list of findings (de-duplicated, each with file, line, and why it matters); draft
+  the GitHub review text in the pr-reviewer template; and **do not post, approve, merge, request
+  review, edit code, or push anything**, because it is read-only and reports back. Do not paste your
+  own reasoning, the diff summary, or what you think is right into the prompt; that would bias it.
+  The sub-agent cannot ask Charlie anything, so everything it needs to decide must come back to you.
+
+  When it reports back, show Charlie the verdict, the findings, and the drafted review comment. It is
+  Charlie's own PR, so pr-reviewer's rule applies: the review posts as a comment (`gh pr review
+  --comment`, opening with `**Self-review — would APPROVE.**` or `**Self-review — would
+  REQUEST_CHANGES.**`) and only after he approves the text. If the review raises findings, fix them
+  here (Step 4b and Step 5, re-acquiring an env only if the change needs a re-shoot), push to the
+  same PR, and spawn a **new** reviewer sub-agent for the re-review (don't reuse the old one, so
+  it stays unbiased). Once the review is posted and clean, do his chosen follow-up **without asking
+  again**:
   - **1. Request review** → `gh pr edit <pr> --add-reviewer <Harshal's GitHub login>` (find the
     login from the repo's recent PR reviewers or collaborators; ask Charlie only if it's genuinely
     ambiguous). Report the link. The pipeline ends; the APO ticket stays "In Review".
