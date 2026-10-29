@@ -3,7 +3,7 @@ name: staging-pipeline
 description: >-
   Take the staging lane's open staging PR from "built" to merged — summarise every ticket on it and
   the decisions the lane made, apply Charlie's drops and decision changes, then run unattended:
-  self-review with /code-review high, fix, run all checks, push, start the dev server, share it and
+  self-review with /code-review high, fix its findings and the PR's review comments, run all checks, push, start the dev server, share it and
   screenshots, and stop for Charlie's review. On Charlie's say-so, squash-merge the PR and move every
   ticket to Done. Use when Charlie wants to review, validate, or ship the staging lane's batch.
 ---
@@ -40,7 +40,8 @@ batch summary → edits → self-review → checks → push → dev server + scr
 **1. Find the staging PR.** In the repo's main checkout, run
 `gh pr list --author @me --label lane:staging --state open`. None open → say so and stop. Otherwise
 read the PR title (ticket keys), body (**Tickets**, **Decisions I made**, **What to check**,
-**Unsure about**), the lane's run-report comments, and any automated reviewer review (comments ending
+**Unsure about**), the lane's run-report comments, and **every review comment on the PR** — inline
+comments, review bodies, and PR comments, including the automated PR reviewer's (ending
 `— Automated PR reviewer`). Fetch the branch and create a worktree on it (no new branch — fixes go on
 this PR). For each ticket, read it in Jira (including comments) and its commit(s) on the branch
 (`git log origin/main..HEAD --grep "KAN-<n>"`).
@@ -51,7 +52,8 @@ Post in chat:
 - **One section per ticket:** ticket link and title; what it's about (the problem, for a user); what
   was built (screens, flows, or files touched); **the decisions the lane made** for it, each with its
   reason; and anything the lane flagged as unsure, skipped, or flaky.
-- Unaddressed findings from the automated PR reviewer, one line each.
+- Open PR review comments (from the automated PR reviewer or anyone else), one line each — Step 4
+  fixes them.
 
 Then **stop** and wait. Charlie may:
 - **Drop a ticket** → `git revert` its commit(s) (one revert commit per ticket), move the ticket to
@@ -67,9 +69,14 @@ carry straight on to Step 3 — no second summary gate unless Charlie asks for o
 **3. Bring the branch up to date.** If behind, `git fetch origin main` and merge `origin/main` into
 the branch (merge, not rebase — the lane does the same). Resolve conflicts keeping both sides' intent.
 
-**4. Self-review and fix.** Run Claude's `/code-review high` on the whole branch diff against `main`,
-fix every issue it surfaces, and fix the automated reviewer's findings that hold up on inspection.
-Each fix is its own commit titled after the ticket it belongs to (Rule 3).
+**4. Self-review and fix.** Fix two sources of findings, each fix its own commit titled after the
+ticket it belongs to (Rule 3):
+- **`/code-review high`** — run Claude's review on the whole branch diff against `main` and fix every
+  issue it surfaces.
+- **PR comments** — re-fetch the PR's inline comments, review bodies, and PR comments (the PR reviewer
+  task may have posted more since Step 1) and fix every one not already addressed. After pushing,
+  reply on each saying what was done (`Fixed in <sha>: …`). If a comment is wrong, don't change the
+  code — reply with why, and list it at the Step 7 gate.
 
 **5. Run every check.** Run everything the repo provides (`npm run check`, `npm run e2e`, …) until it
 passes. A failing test unrelated to the diff: rerun it alone up to 3 times; passing on a rerun means
@@ -83,7 +90,8 @@ breakage (commit, push, reshoot) before reporting.
 
 **7. 🔒 Final review.** Post in chat: the `https://…ts.net:<port>` URL, the `shoot` gallery link with
 one line per screenshot (which ticket, what it shows), the PR link, every ticket link, what the
-self-review and checks fixed, and any flaky tests or findings deliberately left. Then **stop** and
+self-review, PR comments, and checks fixed, and any flaky tests, findings, or PR comments
+deliberately left (with why). Then **stop** and
 wait. No build polling; do not schedule a wakeup.
 - Charlie asks for changes or drops a ticket → handle it as in Step 2, rerun the checks, push (see
   *Later pushes*), let the dev server reload, reshoot what changed, and stop again at this gate.
