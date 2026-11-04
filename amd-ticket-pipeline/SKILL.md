@@ -153,36 +153,41 @@ failed, with the error. He decides: keep going with extra instructions, or abort
 is the exception: ask once, then follow "Environment access" below. Only on abort — or when
 Charlie stops the ticket — stop the dev server and `$LOCK release APO-<id>`.
 
-**6. 🔒 Self-review comment approval, then request Harshal.** The PR is open and the screenshots are
+**6. 🔒 Self-review, comment approval, then request Harshal.** The PR is open and the screenshots are
 shared. Keep the dev server and env lock available while the review runs and until Charlie approves
 the self-review comment, so Charlie can still click around. Get the PR reviewed by a **separate reviewer
 sub-agent**, never in this session. This session wrote the code, so it must not grade its own work.
 
 Spawn one sub-agent (`Agent`, `subagent_type: "general-purpose"`) with a self-contained prompt. Give
-it the PR number and repo path. Instruct it to run `/code-review low <PR number>` and return:
-- the review findings, each with file, line, and why it matters;
-- a concise verdict; and
-- a **short, substantive, single-paragraph draft GitHub self-review comment**. Use the format
-  `**Self-review — would APPROVE.** <paragraph>` when no blocking findings remain. The paragraph must
-  briefly explain what the PR changes, how relevant prior review feedback was addressed, and what
-  validation was completed; include deployment instructions, caveats, or follow-ups when relevant.
-  Tailor it to the PR—never submit a generic sentence such as “found no runtime-correctness issues.”
-  State only facts verified from the PR, review thread, CI/test results, or information Charlie gave
-  you. If a detail is unknown or not applicable, omit it rather than infer or invent it.
+it the PR number and repo path. Instruct it to run `/code-review low <PR number>` and return the
+findings, each with file, line, and why it matters, plus a concise verdict.
+
+- **If findings remain:** do not draft an approval paragraph or GitHub comment. Report the findings
+  and verdict to Charlie, then wait for his decision. Do not change code or continue to request
+  Harshal's review without Charlie's direction. If Charlie asks to address findings, follow his
+  direction or make the fixes if he explicitly asks you to; then repeat Step 4b and Step 5
+  (re-acquiring an env only if the change needs a re-shoot), push to the same PR, and spawn a **new**
+  reviewer sub-agent to run `/code-review low` on the updated PR. Repeat until the review has no
+  findings, or Charlie gives a different explicit direction.
+- **If there are no findings:** also return a **short, substantive, single-paragraph draft GitHub
+  self-review comment**, starting `**Self-review — would APPROVE.**`. The paragraph must briefly
+  explain what the PR changes, how relevant prior review feedback was addressed, and what validation
+  was completed; include deployment instructions, caveats, or follow-ups when relevant. Tailor it to
+  the PR—never submit a generic sentence such as “found no runtime-correctness issues.” State only
+  facts verified from the PR, review thread, CI/test results, or information Charlie gave you. If a
+  detail is unknown or not applicable, omit it rather than infer or invent it.
 
 The sub-agent must **not** invoke the `pr-reviewer` skill, post or approve a review, merge, request
 review, edit code, or push anything. Do not paste your own reasoning, diff summary, or preferred
 conclusion into its prompt; that would bias the review. The sub-agent cannot ask Charlie questions,
 so everything it needs to decide must come back to you.
 
-When it reports back, show Charlie the verdict, findings, and one-paragraph comment draft. This is
-Charlie's own PR, so post the review as a comment with `gh pr review --comment` only after he approves
-the exact text. If the review raises findings, fix them (Step 4b and Step 5, re-acquiring an env only
-if the change needs a re-shoot), push to the same PR, and spawn a **new** reviewer sub-agent to run
-`/code-review low` on the updated PR. Repeat until no blocking findings remain and Charlie approves
-the comment draft.
+When it reports back, show Charlie the verdict and findings; include the comment draft only when there
+are no findings.
 
-After Charlie approves the comment, post it, stop the dev server, and run `$LOCK check APO-<id>`:
+For a clean review, this is Charlie's own PR, so post the approved paragraph as a comment with
+`gh pr review --comment` only after he approves the exact text. After Charlie approves the comment,
+post it, stop the dev server, and run `$LOCK check APO-<id>`:
 - **Exit 1 (LOST)** — tell Charlie which ticket took the env and stop your dev server. The env is no
   longer needed for this final step; continue.
 - **Exit 0** — release the env with `$LOCK release APO-<id>`.
