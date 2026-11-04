@@ -192,9 +192,10 @@ post it, stop the dev server, and run `$LOCK check APO-<id>`:
   longer needed for this final step; continue.
 - **Exit 0** — release the env with `$LOCK release APO-<id>`.
 
-Then request Harshal's review with `gh pr edit <pr> --add-reviewer <Harshal's GitHub login>`. Find
-the login from the repo's recent PR reviewers or collaborators; ask Charlie only if it's genuinely
-ambiguous. Report the review-comment and PR links. The pipeline ends; the APO ticket stays "In Review".
+Only after a clean review and Charlie's approval and posting of the self-review comment, request
+Harshal's review with `gh pr edit <pr> --add-reviewer <Harshal's GitHub login>`. Find the login from
+the repo's recent PR reviewers or collaborators; ask Charlie only if it's genuinely ambiguous. Report
+the review-comment and PR links. The pipeline ends; the APO ticket stays "In Review".
 
 Never merge the PR. Never post the self-review comment before Charlie approves its exact text.
 
