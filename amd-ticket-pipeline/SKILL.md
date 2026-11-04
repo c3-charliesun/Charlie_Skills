@@ -5,8 +5,8 @@ description: >-
   the APO mirror, populate it, present a run plan, implement on a worktree, sync it to
   a free personal env (charlieamdpo03 or charlieamdpo04) under a shared env lock, and run build + lint +
   code-review with fixes, `shoot` screenshots, push and open the PR — all unattended right after
-  implementation — then wait for Charlie to choose: have a separate reviewer sub-agent run the PR reviewer skill and
-  code review and then request review from Harshal, or run it and then squash-merge. Use when Charlie starts
+  implementation — then have a separate reviewer sub-agent run `/code-review low`, draft a one-paragraph
+  self-review comment for approval, post it after approval, and request review from Harshal. Use when Charlie starts
   work on a C3PRICING or APO ticket in the c3amdpo repo. Invoke with either a C3PRICING id
   (e.g. C3PRICING-339) or an APO id (e.g. APO-1199).
 ---
@@ -14,14 +14,14 @@ description: >-
 # AMD ticket → PR pipeline
 
 Single-invocation pipeline: intake → APO mirror → plan → implement → validate + screenshots → push +
-open PR → Charlie's decision. Pause at the two 🔒 gates (run plan, final decision on the open PR) for
-explicit approval.
+open PR → self-review comment → request Harshal's review. Pause at the two 🔒 gates (run plan and
+approval of the final self-review comment) for explicit approval.
 
 ## Hard rules
 
 1. **Approval gates — exactly two.** Wait for explicit approval at the **run plan** (Step 3, before any
-   code) and the **final decision** (Step 6, once the PR is open with screenshots). Everything between
-   them runs unattended: implementing, build/lint/code-review and fixes, env sync, screenshots,
+   code) and the **self-review comment** (Step 6, after the PR is open and screenshots are shared).
+   Everything between them runs unattended: implementing, build/lint/code-review and fixes, env sync, screenshots,
    commit, push, opening the PR, and creating/updating/transitioning APO tickets all proceed without
    asking. Report each with a link right after doing it — ungated means unblocking, not silent, so
    Charlie can still follow the trail.
@@ -36,8 +36,8 @@ explicit approval.
 5. **Each personal env is one-agent-at-a-time.** There are two, `charlieamdpo03` and `charlieamdpo04`
    (same permissions, same token). Several pipeline runs may be live at once and each env holds one
    copy of the code, so never sync to an env, or run a dev server against it, without holding its
-   lock (Step 5). Take whichever is free; if both are held, wait. Release only once Charlie has made
-   his final decision (Step 6), or when Charlie says to abort.
+   lock (Step 5). Take whichever is free; if both are held, wait. Release after Charlie approves the
+   self-review comment in Step 6, or when Charlie says to abort.
 6. **A pasted token is saved, not just used.** When Charlie pastes a fresh token, write it into the
    shared `.env` right away (see "Environment access") so no other agent ever has to ask again.
 
@@ -145,63 +145,48 @@ and `$PORT` (its dev-server port: 8000 for 03, 8001 for 04).
    Charlie which env (`$ENV`) and port he can click around on. Screenshot cleanup is automatic
    (`shoot` prunes runs older than 30 days) — don't delete runs by hand; if the pages look out of
    date after upgrading `shoot`, run `shoot --rebuild`.
-7. **Hold everything and go to Step 6.** Keep the lock, the synced env, and the dev server up so he
-   can click around http://localhost:$PORT himself. No build polling; do not schedule a wakeup.
+7. **Hold everything and go to Step 6.** Keep the lock and synced env available until Charlie
+   approves the self-review comment. No build polling; do not schedule a wakeup.
 
 If something breaks (sync error, dev server won't start), **keep the lock** and tell Charlie what
 failed, with the error. He decides: keep going with extra instructions, or abort. An expired token
 is the exception: ask once, then follow "Environment access" below. Only on abort — or when
 Charlie stops the ticket — stop the dev server and `$LOCK release APO-<id>`.
 
-**6. 🔒 Final decision.** The PR is open and the screenshots are shared. Charlie always runs the PR
-reviewer first, so the only question is what happens after it. Ask exactly this (use `AskUserQuestion`
-if available):
+**6. 🔒 Self-review comment approval, then request Harshal.** The PR is open and the screenshots are
+shared. Keep the dev server and env lock available while the review runs and until Charlie approves
+the self-review comment, so Charlie can still click around. Get the PR reviewed by a **separate reviewer
+sub-agent**, never in this session. This session wrote the code, so it must not grade its own work.
 
-> The PR is up. What now?
-> 1. **Review the PR with a reviewer sub-agent, then request review from Harshal**
-> 2. **Review the PR with a reviewer sub-agent, then merge it directly**
+Spawn one sub-agent (`Agent`, `subagent_type: "general-purpose"`) with a self-contained prompt. Give
+it the PR number and repo path. Instruct it to run `/code-review low <PR number>` and return:
+- the review findings, each with file, line, and why it matters;
+- a concise verdict; and
+- a **single-paragraph draft GitHub self-review comment**, using the format `**Self-review — would
+  APPROVE.** <paragraph>` when no blocking findings remain.
 
-When he answers, first run `$LOCK check APO-<id>`:
-- **Exit 1 (LOST)** — the wait ran past 6 hours and another agent took your env, so it now runs that
-  agent's code. Tell Charlie which ticket took it and that anything he clicked since then wasn't this
-  branch. Stop your dev server. If he only asked for changes, wait for an env again (Step 5 sub-step
-  1 — you may land on the other one, so re-read `$ENV`/`$PORT`), re-sync, re-shoot, re-share. For
-  an answer to the question the env is no longer needed: just continue.
-- **Exit 0** — carry on.
+The sub-agent must **not** invoke the `pr-reviewer` skill, post or approve a review, merge, request
+review, edit code, or push anything. Do not paste your own reasoning, diff summary, or preferred
+conclusion into its prompt; that would bias the review. The sub-agent cannot ask Charlie questions,
+so everything it needs to decide must come back to you.
 
-Then:
-- **Changes requested instead** (he clicked around and wants edits) → fix, re-run `$LOCK acquire`
-  (refreshes the 6h clock on the same env), repeat Step 4b and Step 5 (re-sync, re-shoot, push to the
-  same PR, re-share), then ask this question again.
-- **Either option** → stop the dev server, `$LOCK release APO-<id>`, then get the PR reviewed by a
-  **separate reviewer sub-agent**, never in this session. This session wrote the code, so it must not
-  grade its own work; the reviewer starts fresh and sees only the PR. (Charlie sometimes runs the
-  review in his own separate agent — if he says so, give him the PR number and wait for him to tell
-  you it's done.)
+When it reports back, show Charlie the verdict, findings, and one-paragraph comment draft. This is
+Charlie's own PR, so post the review as a comment with `gh pr review --comment` only after he approves
+the exact text. If the review raises findings, fix them (Step 4b and Step 5, re-acquiring an env only
+if the change needs a re-shoot), push to the same PR, and spawn a **new** reviewer sub-agent to run
+`/code-review low` on the updated PR. Repeat until no blocking findings remain and Charlie approves
+the comment draft.
 
-  Spawn one sub-agent (`Agent`, `subagent_type: "general-purpose"`) with a self-contained prompt.
-  Give it the PR number, the repo path, and these instructions: invoke the `pr-reviewer` skill on the
-  PR **and** run `/code-review high` on it (`/code-review high <PR number>`); merge both into one
-  verdict and one list of findings (de-duplicated, each with file, line, and why it matters); draft
-  the GitHub review text in the pr-reviewer template; and **do not post, approve, merge, request
-  review, edit code, or push anything**, because it is read-only and reports back. Do not paste your
-  own reasoning, the diff summary, or what you think is right into the prompt; that would bias it.
-  The sub-agent cannot ask Charlie anything, so everything it needs to decide must come back to you.
+After Charlie approves the comment, post it, stop the dev server, and run `$LOCK check APO-<id>`:
+- **Exit 1 (LOST)** — tell Charlie which ticket took the env and stop your dev server. The env is no
+  longer needed for this final step; continue.
+- **Exit 0** — release the env with `$LOCK release APO-<id>`.
 
-  When it reports back, show Charlie the verdict, the findings, and the drafted review comment. It is
-  Charlie's own PR, so pr-reviewer's rule applies: the review posts as a comment (`gh pr review
-  --comment`, opening with `**Self-review — would APPROVE.**` or `**Self-review — would
-  REQUEST_CHANGES.**`) and only after he approves the text. If the review raises findings, fix them
-  here (Step 4b and Step 5, re-acquiring an env only if the change needs a re-shoot), push to the
-  same PR, and spawn a **new** reviewer sub-agent for the re-review (don't reuse the old one, so
-  it stays unbiased). Once the review is posted and clean, do his chosen follow-up **without asking
-  again**:
-  - **1. Request review** → `gh pr edit <pr> --add-reviewer <Harshal's GitHub login>` (find the
-    login from the repo's recent PR reviewers or collaborators; ask Charlie only if it's genuinely
-    ambiguous). Report the link. The pipeline ends; the APO ticket stays "In Review".
-  - **2. Merge** → squash-merge (always squash), then transition the APO ticket to **"Done"**.
+Then request Harshal's review with `gh pr edit <pr> --add-reviewer <Harshal's GitHub login>`. Find
+the login from the repo's recent PR reviewers or collaborators; ask Charlie only if it's genuinely
+ambiguous. Report the review-comment and PR links. The pipeline ends; the APO ticket stays "In Review".
 
-Never merge, request a review, or post a review comment before Charlie has answered this question.
+Never merge the PR. Never post the self-review comment before Charlie approves its exact text.
 
 ## Environment access
 
