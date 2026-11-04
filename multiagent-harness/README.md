@@ -1,6 +1,6 @@
 # Multi-agent harness for AISmithLab/MicroBenchmark
 
-Four unattended agents that keep the MicroBenchmark repo moving between them. Each file here is the full prompt for one of them. **These files are the source of truth.** Make every change here.
+Four unattended agents that keep the MicroBenchmark repo moving between them. Each lane has its own prompt file here, and all four read [shared.md](shared.md) first. **These files are the source of truth.** Make every change here.
 
 | Lane | Prompt | Runs |
 | --- | --- | --- |
@@ -48,5 +48,6 @@ Anything unsigned is Charlie. Lane PRs also end with a marker line, such as `Ope
 
 ## Editing the prompts
 
-- **Shared blocks must stay identical in all four files:** the four-lane summary paragraph, *No AI attribution* and *Routing labels*. When you change one, change it everywhere.
-- If you change how one lane behaves toward another (labels, signatures, caps, schedules), update the other prompts that depend on it in the same commit.
+- **Rules every lane follows live in [shared.md](shared.md):** the four-lane summary, basics (Jira, the owner, no questions, repo conventions, git safety), environment, checks and flaky tests, no AI attribution, routing labels and off-limits areas, lane labels and signatures, and screenshots. Each lane prompt starts by telling the agent to read it. Change these rules only there.
+- **Lane prompts hold only what is specific to that lane.** Where a lane prompt and `shared.md` disagree, the lane prompt wins, so don't restate a shared rule in a lane file unless you mean to override it.
+- If you change how one lane behaves toward another (labels, signatures, caps, schedules), update `shared.md` and any lane prompts that depend on it in the same commit.
