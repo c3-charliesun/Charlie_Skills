@@ -1,13 +1,13 @@
 # Multi-agent harness for AISmithLab/MicroBenchmark
 
-Four unattended agents that keep the MicroBenchmark repo moving between them. Each file here is the full prompt for one of them. **These files are the source of truth.** Edit them here first, then copy the new text into the matching routine.
+Four unattended agents that keep the MicroBenchmark repo moving between them. Each file here is the full prompt for one of them. **These files are the source of truth.** Make every change here.
 
-| Lane | Prompt | Runs | Routine |
-| --- | --- | --- | --- |
-| Testing lane | [testing-lane.md](testing-lane.md) | Daily at midnight PT | [trig_012FbEmmLDJ7q4QJu11GrDoS](https://claude.ai/code/routines/trig_012FbEmmLDJ7q4QJu11GrDoS) |
-| Maintenance lane | [maintenance-lane.md](maintenance-lane.md) | Every 3 hours | [trig_01SzcpjD2L7iRBDdYWDMjc26](https://claude.ai/code/routines/trig_01SzcpjD2L7iRBDdYWDMjc26) |
-| Staging lane | [staging-lane.md](staging-lane.md) | 6am and 6pm PT | [trig_01VpF4GVumfQyhyT15vp29HK](https://claude.ai/code/routines/trig_01VpF4GVumfQyhyT15vp29HK) |
-| PR reviewer | [pr-reviewer.md](pr-reviewer.md) | Every 15 minutes when there is work, on Charlie's Mac (the cloud routine is hourly, since routines can't run more often) | [trig_01PyFkGuBb1YefbViMMaExvX](https://claude.ai/code/routines/trig_01PyFkGuBb1YefbViMMaExvX) |
+| Lane | Prompt | Runs |
+| --- | --- | --- |
+| Testing lane | [testing-lane.md](testing-lane.md) | Daily at midnight PT |
+| Maintenance lane | [maintenance-lane.md](maintenance-lane.md) | Every 3 hours |
+| Staging lane | [staging-lane.md](staging-lane.md) | 6am and 6pm PT |
+| PR reviewer | [pr-reviewer.md](pr-reviewer.md) | Every 15 minutes when there is work, on Charlie's Mac |
 
 ## How they fit together
 
@@ -50,4 +50,3 @@ Anything unsigned is Charlie. Lane PRs also end with a marker line, such as `Ope
 
 - **Shared blocks must stay identical in all four files:** the four-lane summary paragraph, *No AI attribution* and *Routing labels*. When you change one, change it everywhere.
 - If you change how one lane behaves toward another (labels, signatures, caps, schedules), update the other prompts that depend on it in the same commit.
-- After committing, push each changed prompt to its routine. One way is to ask Claude Code to "update the <lane> routine from multiagent-harness/<file>.md". That replaces `job_config.ccr.events[0].data.message.content` through the RemoteTrigger API.
