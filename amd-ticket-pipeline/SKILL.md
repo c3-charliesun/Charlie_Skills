@@ -162,8 +162,13 @@ Spawn one sub-agent (`Agent`, `subagent_type: "general-purpose"`) with a self-co
 it the PR number and repo path. Instruct it to run `/code-review low <PR number>` and return:
 - the review findings, each with file, line, and why it matters;
 - a concise verdict; and
-- a **single-paragraph draft GitHub self-review comment**, using the format `**Self-review — would
-  APPROVE.** <paragraph>` when no blocking findings remain.
+- a **short, substantive, single-paragraph draft GitHub self-review comment**. Use the format
+  `**Self-review — would APPROVE.** <paragraph>` when no blocking findings remain. The paragraph must
+  briefly explain what the PR changes, how relevant prior review feedback was addressed, and what
+  validation was completed; include deployment instructions, caveats, or follow-ups when relevant.
+  Tailor it to the PR—never submit a generic sentence such as “found no runtime-correctness issues.”
+  State only facts verified from the PR, review thread, CI/test results, or information Charlie gave
+  you. If a detail is unknown or not applicable, omit it rather than infer or invent it.
 
 The sub-agent must **not** invoke the `pr-reviewer` skill, post or approve a review, merge, request
 review, edit code, or push anything. Do not paste your own reasoning, diff summary, or preferred
