@@ -95,8 +95,8 @@ and move any slice that went back to To Do for the replan so it's buildable agai
 ticket. Then set the status line to `approved v<N>` and swap `plan-draft` → `plan-approved`.
 
 **Report** to Charlie: the epic link, each slice ticket with its key and what it's blocked by, and
-which slices the maintenance lane can start on its next run (the ones blocked by nothing). The
-maintenance lane runs every 3 hours.
+which slices the maintenance lane can start next (the ones blocked by nothing). The maintenance lane
+checks every 15 minutes and builds one ticket per run, so a ready slice starts within about 15 minutes.
 
 ## Things that go wrong
 
