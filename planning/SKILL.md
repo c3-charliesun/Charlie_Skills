@@ -1,9 +1,11 @@
 ---
 name: planning
 description: >-
-  Plan big MyBench-client work as small PRs. Two modes. "Idea": brainstorm a feature or change with
-  Charlie, read the code, and write a plan that splits it into maintenance-sized slices that each merge
-  on their own; on his OK, create the Jira epic and one maintenance-lane ticket per slice. "Review":
+  Plan big MyBench work (MyBench-client, the desktop app and database, and MyBench-web, the public
+  website) as small PRs. Two modes. "Idea": brainstorm a feature or change with Charlie, work out which
+  repo or repos it belongs to and confirm that with him, read the code, and write a plan that splits it
+  into maintenance-sized slices that each merge on their own; on his OK, create the Jira epic and one
+  maintenance-lane ticket per slice, labelled for its repo. "Review":
   go through the planning lane's draft plans (epics labelled plan-draft) with Charlie, one at a time,
   and approve (create or update the slice tickets), edit, or reject each. Use when Charlie has an idea
   to plan, wants to review or approve draft plans, or asks what plans are waiting.
@@ -11,14 +13,22 @@ description: >-
 
 # Planning
 
-Plans for AISmithLab/MyBench-client (Jira project KAN on aicodinggym.atlassian.net). The rules for
-what a plan looks like, what makes a good slice, the epic and slice labels, and how replans work are in
-`~/Code/Multiagent_Harness/mybench-client/planning.md`. **Read that file first, every time,** and
-follow it exactly: the planning lane uses the same file, so plans look the same whoever wrote them.
-Also read `~/Code/Multiagent_Harness/mybench-client/shared.md` for routing labels and off-limits areas.
+Plans for the two MyBench repos, which share Jira project KAN on aicodinggym.atlassian.net:
 
-The maintenance lane builds the slice tickets this skill creates, and the reviewing lane merges them,
-with nobody looking. So the plan is Charlie's one chance to steer the work. Make every slice small,
+| Repo | Clone | What's in it | Its tickets |
+| --- | --- | --- | --- |
+| AISmithLab/MyBench-client | `~/Code/MyBench-client` | the desktop app (frontend, backend, Rust shell), benchmark creation and runs, and the hosted database (`supabase/`) the app uploads to | no repo label |
+| AISmithLab/MyBench-web | `~/Code/MyBench-web` | the public website: home page and shared leaderboard, its API, the Vercel deploy. Reads the hosted database. Every merge goes live. | `repo-web` |
+
+The rules for what a plan looks like, what makes a good slice, the epic and slice labels, how plans
+span the two repos, and how replans work are in `~/Code/Multiagent_Harness/mybench-client/planning.md`.
+**Read that file first, every time,** and follow it exactly: the planning lane uses the same file, so
+plans look the same whoever wrote them. Also read the `shared.md` for each repo the plan touches, for
+routing labels and off-limits areas: `~/Code/Multiagent_Harness/mybench-client/shared.md` and
+`~/Code/Multiagent_Harness/mybench-web/shared.md`.
+
+Each repo has its own maintenance lane, which builds the slice tickets this skill creates, and its own
+reviewing lane, which merges them, with nobody looking. So the plan is Charlie's one chance to steer the work. Make every slice small,
 safe to merge alone, and settled.
 
 ## Hard rules
@@ -27,29 +37,44 @@ safe to merge alone, and settled.
    Creating, editing or closing Jira tickets, and changing epic labels, happen only after Charlie says
    yes to that specific plan in this session.
 2. **Jira = the Atlassian MCP tools.** Every ticket operation goes through them.
-3. **Read the code, don't guess.** Work from a fresh `origin/main` of `~/Code/MyBench-client`
-   (`git -C ~/Code/MyBench-client fetch origin main`, then read with `git show origin/main:<path>` or a
-   throwaway worktree). Size estimates and file lists in a plan come from the code.
-4. **No code.** This skill writes plans and tickets, never app code, branches or PRs.
-5. **No AI attribution** in tickets or comments (no Co-Authored-By, "Generated with" lines or session
+3. **Read the code, don't guess.** Work from a fresh `origin/main` of each repo the plan touches
+   (`git -C <clone> fetch origin main`, then read with `git show origin/main:<path>` or a throwaway
+   worktree). Size estimates and file lists in a plan come from the code.
+4. **Confirm the repo before planning.** Never assume which repo an idea belongs to. Say which one you
+   think it is and why, and let Charlie confirm or correct it before drafting.
+5. **No code.** This skill writes plans and tickets, never app code, branches or PRs.
+6. **No AI attribution** in tickets or comments (no Co-Authored-By, "Generated with" lines or session
    links). Re-read every ticket you create.
-6. **Simple English.** Plans are for Charlie to read quickly. Short sentences, plain words.
+7. **Simple English.** Plans are for Charlie to read quickly. Short sentences, plain words.
 
 ## Mode 1: Idea
 
 Charlie describes something he wants.
 
-1. **Understand it.** Ask only what you can't work out from the code: who it's for, what "done"
+1. **Find the repo.** From his description, work out where the work lives, using the table above:
+   desktop app, benchmark building or running, or the database → MyBench-client; the public site or
+   the shared leaderboard's page → MyBench-web; both when the site needs data the database doesn't
+   have yet, or when it touches the copied packages (`packages/benchmark-schema`,
+   `packages/model-pricing`). Skim both repos' code (`git grep` on `origin/main`) when the description
+   isn't enough to tell. Then tell him in one line, with the reason, e.g. "This looks like MyBench-web
+   only: the leaderboard page is `frontend/src/leaderboard.ts` there, and the data it needs is already in
+   the database." 🔒 Wait for him to confirm or correct it.
+2. **Understand it.** Ask only what you can't work out from the code: who it's for, what "done"
    looks like, and anything that changes the shape of the plan. One round of questions, not a quiz.
-2. **Read the code** it touches, `CLAUDE.md`, and the docs for that area.
-3. **Check it needs a plan** (*When not to plan* in `planning.md`). If it fits in one maintenance PR,
-   say so and offer to file one `maintenance-lane` ticket instead (or to build it now with
-   `charlie-pipeline`).
-4. **Draft the plan** in chat, in the `planning.md` format. Put every choice under **Decisions** with
+   You can ask these together with the repo check in step 1.
+3. **Read the code** it touches in each confirmed repo, each repo's `CLAUDE.md`, and the docs for that
+   area (for cross-repo work, MyBench-web's `README.md` *Shared leaderboard* section, which lists the
+   contract between the two).
+4. **Check it needs a plan** (*When not to plan* in `planning.md`). If it fits in one maintenance PR
+   in one repo, say so and offer to file one `maintenance-lane` ticket instead (with `repo-web` if it's
+   MyBench-web's), or to build it now with `charlie-pipeline`.
+5. **Draft the plan** in chat, in the `planning.md` format, with a **Repo:** line on every slice. Put every choice under **Decisions** with
    a recommendation. Then point out the two or three things he should look at hardest: the riskiest
    slice, the decisions you were least sure of, and anything that could show users something half-built.
-5. **Edit with him** until he approves. 🔒 Wait for an explicit yes.
-6. **Create it** (*Creating an approved plan* below), with the epic's source line `Owner's idea`.
+   For a plan across both repos, also say how the order keeps both sides working at every step (for
+   example, the database change merges first, then the site starts reading it).
+6. **Edit with him** until he approves. 🔒 Wait for an explicit yes.
+7. **Create it** (*Creating an approved plan* below), with the epic's source line `Owner's idea`.
 
 ## Mode 2: Review drafts
 
@@ -64,8 +89,9 @@ Charlie describes something he wants.
      sizes believable? Does each slice really merge alone without showing anything half-built? If you
      find problems, say so up front with a fix.
    - **Show a short summary:** the goal, the slices in one line each, each **Owner:** decision with the
-     recommendation, your own concerns, and for a replan, *Changes from v<N-1>*. Link the epic for the
-     full text.
+     recommendation, your own concerns, and for a replan, *Changes from v<N-1>*. Show each slice's repo,
+     and check the plan's repos are right: if a slice is in the wrong repo, or the plan misses work in
+     the other one, say so up front. Link the epic for the full text.
    - 🔒 **Charlie decides:**
      - **Approve** (with or without edits): write any edits into the epic's description first, then
        *Creating an approved plan*.
@@ -82,7 +108,9 @@ Charlie describes something he wants.
 1. For Mode 1, create the epic first: issue type Epic, assignee Charlie, title = the goal in a few
    words, description = the plan.
 2. Create one ticket per slice as *Slice tickets* in `planning.md` says (type, parent, labels, title,
-   body), in slice order.
+   body), in slice order. Every slice whose **Repo:** is MyBench-web gets the label `repo-web`; slices in
+   MyBench-client get no repo label. Get this right: the label decides which repo's maintenance lane
+   builds the slice.
 3. Add the "is blocked by" links between them.
 4. Write each key into its slice's **Ticket:** line, set the status line to `approved v<N>`, and swap
    the epic's label `plan-draft` → `plan-approved` (Mode 1: just add `plan-approved`).
@@ -94,9 +122,10 @@ slices, close dropped ones (and close their open PRs with a comment), fix the "i
 and move any slice that went back to To Do for the replan so it's buildable again. Never reopen a Done
 ticket. Then set the status line to `approved v<N>` and swap `plan-draft` → `plan-approved`.
 
-**Report** to Charlie: the epic link, each slice ticket with its key and what it's blocked by, and
-which slices the maintenance lane can start next (the ones blocked by nothing). The maintenance lane
-checks every 15 minutes and builds one ticket per run, so a ready slice starts within about 15 minutes.
+**Report** to Charlie: the epic link, each slice ticket with its key, its repo and what it's blocked
+by, and which slices can start next (the ones blocked by nothing). Each repo's maintenance lane checks
+every 15 minutes and builds one ticket per run, so a ready slice starts within about 15 minutes.
+Slices in MyBench-web go live as soon as the reviewing lane merges them.
 
 ## Things that go wrong
 
