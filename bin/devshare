@@ -1,0 +1,49 @@
+#!/usr/bin/env bash
+# devshare — share a local dev server with your tailnet over HTTPS, using `tailscale serve`.
+#
+#   devshare <port>        share http://localhost:<port> at https://<this-machine>.ts.net:<port>
+#   devshare stop <port>   stop sharing that port
+#   devshare list          show what is being shared
+#
+# Only devices on your tailnet can open the link (this is `serve`, not `funnel`).
+set -euo pipefail
+
+ts() {
+  if command -v tailscale >/dev/null 2>&1; then
+    tailscale "$@"
+  elif [ -x /Applications/Tailscale.app/Contents/MacOS/Tailscale ]; then
+    /Applications/Tailscale.app/Contents/MacOS/Tailscale "$@"
+  else
+    echo "devshare: tailscale CLI not found. Install Tailscale and sign in." >&2
+    exit 1
+  fi
+}
+
+usage() { sed -n '2,8p' "$0" | sed 's/^# \{0,1\}//'; exit "${1:-0}"; }
+
+check_port() {
+  [[ "$1" =~ ^[0-9]+$ ]] && [ "$1" -ge 1 ] && [ "$1" -le 65535 ] || { echo "devshare: bad port '$1'" >&2; exit 2; }
+}
+
+host() {
+  ts status --json | python3 -c 'import json,sys; print(json.load(sys.stdin)["Self"]["DNSName"].rstrip("."))'
+}
+
+case "${1:-}" in
+  ""|-h|--help|help) usage 0 ;;
+  list|status) ts serve status ;;
+  stop)
+    [ -n "${2:-}" ] || usage 2
+    check_port "$2"
+    ts serve --https="$2" off
+    echo "Stopped sharing port $2."
+    ;;
+  *)
+    check_port "$1"
+    if ! nc -z localhost "$1" 2>/dev/null; then
+      echo "devshare: warning — nothing is listening on localhost:$1 yet. Sharing anyway." >&2
+    fi
+    ts serve --bg --https="$1" "http://localhost:$1" >/dev/null
+    echo "https://$(host):$1"
+    ;;
+esac

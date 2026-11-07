@@ -6,12 +6,12 @@ saves screenshots to a gallery you can open in your browser. It's a thin wrapper
 ## Setup (one time, Node.js 18+)
 
 ```bash
-cd ~/Desktop/charlie_skills/shoot
+cd ~/Code/Charlie_Skills/shoot
 npm install
 npx playwright install chromium
 
 mkdir -p ~/.local/bin
-printf '#!/usr/bin/env bash\nexec node "$HOME/Desktop/charlie_skills/shoot/shoot.mjs" "$@"\n' > ~/.local/bin/shoot
+printf '#!/usr/bin/env bash\nexec node "$HOME/Code/Charlie_Skills/shoot/shoot.mjs" "$@"\n' > ~/.local/bin/shoot
 chmod +x ~/.local/bin/shoot
 shoot --help
 ```
