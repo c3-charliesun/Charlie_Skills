@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<!-- Serves ~/.harness/shots on localhost:4100 at login and keeps it running.
+     Install: see "Gallery" in README.md. Shared over Tailscale with `devshare 4100`. -->
+<plist version="1.0">
+<dict>
+  <key>Label</key><string>com.charlie.shoot-gallery</string>
+  <key>ProgramArguments</key>
+  <array>
+    <string>/bin/sh</string><string>-c</string>
+    <string>exec /usr/bin/env python3 -m http.server 4100 --bind 127.0.0.1 -d "$HOME/.harness/shots"</string>
+  </array>
+  <key>EnvironmentVariables</key>
+  <dict><key>PATH</key><string>/opt/homebrew/bin:/usr/bin:/bin</string></dict>
+  <key>RunAtLoad</key><true/>
+  <key>KeepAlive</key><true/>
+</dict>
+</plist>

@@ -8,6 +8,19 @@ import path from 'node:path';
 
 const SHOTS = process.env.HARNESS_SHOTS_DIR || path.join(os.homedir(), '.harness', 'shots');
 const PORT = process.env.HARNESS_GALLERY_PORT || '4100';
+// Base of the printed gallery link. The gallery is shared over Tailscale (`devshare 4100`), so by default
+// the link uses this machine's tailnet name; a localhost link is no use when driving the machine remotely.
+function galleryBase() {
+  if (process.env.HARNESS_GALLERY_URL) return process.env.HARNESS_GALLERY_URL.replace(/\/+$/, '');
+  for (const bin of ['tailscale', '/Applications/Tailscale.app/Contents/MacOS/Tailscale']) {
+    try {
+      const host = JSON.parse(execSync(`"${bin}" status --json`, { stdio: ['ignore', 'pipe', 'ignore'], timeout: 5000 }))
+        .Self?.DNSName?.replace(/\.$/, '');
+      if (host) return `https://${host}:${PORT}`;
+    } catch {}
+  }
+  return `http://localhost:${PORT}`;
+}
 const KEEP_DAYS = Number(process.env.HARNESS_SHOTS_KEEP_DAYS || 30);
 // How long one step (click, fill, wait for a selector, page load) may take. The apps this tool is used
 // on are slow, especially on a cold start, so be generous: a step that really is stuck still ends the run.
@@ -492,7 +505,7 @@ async function main() {
   prune(SHOTS, outDir);
   buildSite(SHOTS);
 
-  console.log(`http://localhost:${PORT}/${project}/#run-${runId}`);
+  console.log(`${galleryBase()}/${project}/#run-${runId}`);
   console.log(`saved ${shots.filter(s => !s.video && !s.missing).length} screenshot(s) to ${outDir}`);
   if (problems.length) console.log(`${problems.length} console/network problem(s) — see report`);
   for (const f of failures) console.log(`FAILED ${f}`);

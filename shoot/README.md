@@ -62,17 +62,26 @@ a collapsible section for every run:
 - Repeated console/network errors are listed once with a count.
 - Open a run directly with `/<project>/#run-<run id>` (the link `shoot` prints).
 
-`~/.harness/shots/index.html` lists the projects. Serve the folder and open the link `shoot` prints:
+`~/.harness/shots/index.html` lists the projects. To view it from another device, serve the folder on
+localhost:4100 and share that port over Tailscale (one time, on the machine that runs `shoot`):
 
 ```bash
-python3 -m http.server 4100 -d ~/.harness/shots
+mkdir -p ~/.harness/shots
+cp ~/Code/Charlie_Skills/shoot/com.charlie.shoot-gallery.plist ~/Library/LaunchAgents/
+launchctl bootstrap gui/$(id -u) ~/Library/LaunchAgents/com.charlie.shoot-gallery.plist
+devshare 4100
 ```
 
-http://localhost:4100/ lists every project, newest first.
+The login item keeps the server running and starts it again at login; the share stays on too. The
+link `shoot` prints uses this machine's Tailscale name, e.g.
+`https://<machine>.<tailnet>.ts.net:4100/<project>/#run-<run id>`. Set `HARNESS_GALLERY_URL` to use a
+different base (it falls back to `http://localhost:4100` when Tailscale isn't running). The root URL
+lists every project, newest first.
 
 ## Cleanup
 
 Automatic. Every run deletes runs older than 30 days (and empty project folders) — no manual
 deletion needed. Settings: `HARNESS_SHOTS_KEEP_DAYS` (default 30), `HARNESS_SHOTS_DIR` (default
-`~/.harness/shots`), `HARNESS_GALLERY_PORT` (port in the printed link, default 4100),
+`~/.harness/shots`), `HARNESS_GALLERY_PORT` (port in the printed link, default 4100), `HARNESS_GALLERY_URL` (base of the
+printed link, default this machine's Tailscale HTTPS name),
 `HARNESS_STEP_TIMEOUT_MS` (per-step wait, default 30000).
