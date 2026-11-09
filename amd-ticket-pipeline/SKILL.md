@@ -92,9 +92,7 @@ existing tests (`test/js-rhino/**`, `test/py/**`). Tests are authored here but r
 As soon as the code is written, go straight on to Step 4b — do not stop to report the result and wait.
 
 **4b. Self-review and fix (unattended).** From `amdpo/amdPoUI/react`, run `npm run build` + `npm run lint`,
-and run Claude's `/code-review high` on the diff. `/code-review` skips `.py` and `react/**/*.tsx`, so
-also self-review the diff against `C3-REVIEW-CHECKLIST.md` (skills-repo root; the same checklist
-pr-reviewer uses), hand-checking the **[PY]** and **[TSX]** items. Fix every issue surfaced and
+and run Claude's `/code-review high` on the diff. Fix every issue surfaced and
 re-run build + lint until clean. The unit/integration tests authored in Step 4 run in CI, not locally.
 Do this *before* the env review so the screenshots show the final code.
 
