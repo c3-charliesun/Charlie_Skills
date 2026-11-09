@@ -21,7 +21,7 @@ Plans for the two MyBench repos, which share Jira project KAN on aicodinggym.atl
 | AISmithLab/MyBench-web | `~/Code/MyBench-web` | the public website: home page and shared leaderboard, its API, the Vercel deploy. Reads the hosted database. Every merge goes live. | `repo-web` |
 
 The rules for what a plan looks like, what makes a good slice, the epic and slice labels, how plans
-span the two repos, and how replans work are in `~/Code/Multiagent_Harness/mybench-client/planning.md`.
+span the two repos, and how replans work are in `~/Code/Multiagent_Harness/planning.md`.
 **Read that file first, every time,** and follow it exactly: the planning lane uses the same file, so
 plans look the same whoever wrote them. Also read the `shared.md` for each repo the plan touches, for
 routing labels and off-limits areas: `~/Code/Multiagent_Harness/mybench-client/shared.md` and
