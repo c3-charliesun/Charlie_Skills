@@ -88,7 +88,7 @@ Charlie describes something he wants.
    - **Check it yourself before showing it:** spot-read the code for the riskiest slices. Are the
      sizes believable? Does each slice really merge alone without showing anything half-built? If you
      find problems, say so up front with a fix.
-   - **Show a short summary:** the goal, the slices in one line each, each **Owner:** decision with the
+   - **Show a short summary:** the current situation (how it works today), the goal, the slices in one line each, each **Owner:** decision with the
      recommendation, your own concerns, and for a replan, *Changes from v<N-1>*. Show each slice's repo,
      and check the plan's repos are right: if a slice is in the wrong repo, or the plan misses work in
      the other one, say so up front. Link the epic for the full text.
