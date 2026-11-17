@@ -24,7 +24,7 @@
 
 A package folder has either already been created, or you must create one with `c3-mcp-cli` (see "Package Creation"). All code must go in that folder. The package folder is the directory that contains the `<PackageName>.c3pkg.json` file. Then IN ORDER:
 
-1. **Before scaffolding or writing code, check what skills cover the task.** First, look at available skills (already loaded in your context). If at least one matches the task, **load and follow it — do NOT also call `discover_skills`**. Only call `discover_skills(query="<short task description>")` (via the C3AI-MCP server) when no available skill applies, or when the task involves a specific platform feature (e.g. C3 authentication, cluster administration, artifact hub). When `discover_skills` returns a more specific match, install it with `c3-mcp-cli add-skill <name>`. Skip skill-loading entirely only for trivial non-C3 work (renaming a variable, a one-line factual question).
+1. **Before scaffolding or writing code, check what skills cover the task.** First, look at available skills (already loaded in your context). If at least one matches the task, **load and follow it — do NOT also call `discover_skills`**. Only call `discover_skills(query="<short task description>")` (via the C3AI-MCP server) when no available skill applies, or when the task involves a specific platform feature (e.g. C3 authentication, cluster administration, artifact hub). When `discover_skills` returns a more specific match, install it with `c3-mcp-cli download-skill <name>`. Skip skill-loading entirely only for trivial non-C3 work (renaming a variable, a one-line factual question).
 2. Look for the existing package folder and read through it.
 3. **Identify domain entities** from the user's spec/request. Any nouns that represent data objects (e.g., "shipments," "suppliers," "contracts," "items," "users," "events") MUST become C3 entity types — never hardcoded TypeScript data.
 4. Create Frontend React code in `<pkg_name>/react/src/` folder
@@ -230,6 +230,7 @@ c3-mcp-cli list-templates
 | ------------------------------------------------------------------------------------ | --------------------------- |
 | A **chat application** with a GenAI agent, conversational AI, or chat interface      | `--template genai`          |
 | A **scheduling or optimization** app with MILP, supply chain, or production planning | `--template pso`            |
+| An **inventory optimization** app (safety stock, reorder point, min/max)             | `--template io`            |
 | **Any other C3 application** (default fallback)                                      | _(no template flag needed)_ |
 
 ### Commands
@@ -252,6 +253,12 @@ c3-mcp-cli create-c3-package --name <packageNameInCamelCase> --template genai --
 c3-mcp-cli create-c3-package --name <packageNameInCamelCase> --template pso --agent <cursor|copilot|claude|c3code>
 ```
 
+**IO Template** — for inventory optimization apps:
+
+```bash
+c3-mcp-cli create-c3-package --name <packageNameInCamelCase> --template io --agent <cursor|copilot|claude|c3code>
+```
+
 **Add React to Existing Package** — adds React frontend to a package that already exists:
 
 ```bash
@@ -264,6 +271,7 @@ c3-mcp-cli add-react --name <packageName>
 | ------------------ | -------------------------- | ----------------------------------------------------------------------------- |
 | `--template genai` | `mcpServer`, `genAiSearch` | Pre-configured for GenAI Search                                               |
 | `--template pso`   | `mcpServer`, `optim`       | MILP examples in `resource/examples/`, PSO instructions copied to agent rules |
+| `--template io`    | `mcpServer`, `inventoryOptimizationCapability` | IO pipeline instructions, data model guides, demo data setup |
 | _(default)_        | None                       | Basic C3 package structure                                                    |
 
 All templates generate: `react/`, `src/`, `test/`, `seed/`, and `<package_name>.c3pkg.json`.
@@ -322,18 +330,21 @@ The `c3-mcp-cli` command-line tool is preinstalled for package scaffolding and s
 | `c3-mcp-cli create-c3-package --name <name> --template <t> --agent <a>` | Creating from a specialized template              |
 | `c3-mcp-cli add-react --name <name>`                                    | Adding React frontend to an existing package      |
 | `c3-mcp-cli list-templates`                                             | Listing all available templates with descriptions |
-| `c3-mcp-cli add-skill <skillName>`                                      | Downloading and installing a skill                |
+| `c3-mcp-cli download-skill <skillName>`                                  | Downloading and installing a skill (`name@version` to pin) |
+| `c3-mcp-cli download-skills --skills <a,b>`                             | Downloading several skills at once                |
 | `c3-mcp-cli list-skills`                                                | Listing available skills                          |
-| `c3-mcp-cli set-endpoint`                                               | Configuring the C3 server endpoint                |
-| `c3-mcp-cli set-token`                                                  | Setting the authentication token                  |
+| `c3-mcp-cli set-endpoint --name <n> --url <u> --force`                  | Manually configuring a server endpoint (`--force` required) |
+| `c3-mcp-cli set-token --token <token>`                                  | Setting the authentication token                  |
+
+`add-skill` and `add-skills` are deprecated; use `download-skill` and `download-skills`.
 
 ### Skill Management
 
-Use `c3-mcp-cli add-skill <skillName>` to install a skill from the C3 server. Only install skills you will actually use for the current task — do not bulk-install. For **when** to discover and install skills, see "Development Workflow → Prepare" and "C3 Skills — Reference".
+Use `c3-mcp-cli download-skill <skillName>` to install a skill from the C3 server. Only install skills you will actually use for the current task — do not bulk-install. For **when** to discover and install skills, see "Development Workflow → Prepare" and "C3 Skills — Reference".
 
 ## C3 Skills — Reference
 
-Skills in `available_skills` are installed and ready to use. Skills on the C3 server are **not** available until installed via `c3-mcp-cli add-skill <name>`. See "Development Workflow → Prepare" for when to discover and install.
+Skills in `available_skills` are installed and ready to use. Skills on the C3 server are **not** available until installed via `c3-mcp-cli download-skill <name>`. See "Development Workflow → Prepare" for when to discover and install.
 
 ## Seed Data vs Sample Data
 
