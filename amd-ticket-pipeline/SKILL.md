@@ -84,6 +84,14 @@ reported by <reporter>). <AMD ask.> <If Rule 4 applies: note the prior mirror, l
 ```
 
 **3. Run plan.** Present in chat only — no file. 🔒 Design checkpoint; no code until approved.
+Besides the implementation steps, the plan always covers these, each in a line or two. Fill them from
+the ticket and context, and propose a default where it isn't known yet:
+- **The task**, in Charlie's words, plus what you know from context.
+- **What he really wants:** the goal behind the ticket, and how he'll judge it.
+- **Done when:** measurable checks (tests, behaviour, screenshots).
+- **What to iterate on:** what you'll try more than once and how you'll decide (if anything).
+- **How it fits:** related tickets, other repos or teams, and what it must not break.
+- **When you'll stop and ask him** (beyond the two gates), and **what you'll decide alone**.
 
 **4. Implement.** Fetch `develop`, then create a worktree + branch off `origin/develop` (Rule 3); implement
 there. For tests, use the relevant C3 skills (`c3-testing` + the domain skill) and mimic the repo's
