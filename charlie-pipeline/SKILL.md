@@ -44,9 +44,19 @@ existing ticket:
 **2. Move it to In Progress.** Transition the ticket to **"In Progress"** and post the ticket link in chat.
 
 **3. Run plan.** Present in chat only — no file. 🔒 Design checkpoint; no code until approved.
+Besides the implementation steps, the plan always covers these, each in a line or two. Fill them from
+the ticket and context, and propose a default where it isn't known yet:
+- **The task**, in Charlie's words, plus what you know from context.
+- **What he really wants:** the goal behind the ticket, and how he'll judge it.
+- **Done when:** measurable checks (tests, behaviour, screenshots).
+- **What to iterate on:** what you'll try more than once and how you'll decide (if anything).
+- **How it fits:** related tickets, other repos or lanes, and what it must not break.
+- **When you'll stop and ask him** (beyond the two gates), and **what you'll decide alone**.
 
 **4. Implement.** Fetch the latest base branch (`git fetch origin <base>`), then create a new worktree +
-branch off `origin/<base>` (Rule 3); implement there and verify it works (build, tests, lint as the
+branch off `origin/<base>` (Rule 3) **inside the repo's hidden `.claude/worktrees/` folder**, e.g.
+`git worktree add <repo>/.claude/worktrees/<TICKET-ID> -b <branch> origin/<base>`. Never put it in a
+folder next to the repo in `~/Code/`. Implement there and verify it works (build, tests, lint as the
 repo provides). Don't stop to check in — carry straight on to Step 5.
 
 **5. Self-review, fix, commit, push.** Run Claude's `/code-review high` on the diff, fix every issue it
