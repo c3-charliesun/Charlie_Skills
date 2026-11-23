@@ -92,8 +92,13 @@ surfaces, then commit and push everything.
 the ticket in the body, and once the PR is open, transition the ticket to **"In Review"** (same
 mechanism as Step 2).
 
-**7. 🔒 Dev server → final review.** Start the repo's dev server from the Step 4 worktree, share it with
-`devshare <port>`, and post in chat: the `https://…ts.net:<port>` URL, the PR link, the ticket link *(Jira)*, and
+**7. 🔒 Dev server → final review.** First stop any review dev server an earlier run of this skill left up
+more than a day ago whose PR is still idle (check `devshare list` and `lsof -nP -iTCP -sTCP:LISTEN` for servers
+running from `.claude/worktrees/`; stop the server and `devshare stop <port>`), so old servers never pile up.
+Start the repo's dev server from the Step 4 worktree on **review ports the lanes never use**: backend port in
+8900-8949 and site/frontend port in 5300-5349 (pick the first free one; the harness lanes use 4341-4357, 5185-5198
+and 8811-8827, and a busy lane port blocks their runs and pushes). Point the frontend at that backend port. Share
+it with `devshare <port>`, and post in chat: the `https://…ts.net:<port>` URL, the PR link, the ticket link *(Jira)*, and
 a short summary of what changed and what the self-review fixed. (Repo has no dev server → skip starting
 one and just post the rest.) Then **stop** and wait. No build polling; do not schedule a wakeup.
 - Charlie asks for changes → make them, commit, push (see *Later pushes*), let the dev server reload,
