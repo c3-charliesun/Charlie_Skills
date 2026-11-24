@@ -4,8 +4,8 @@ description: >-
   Walk Charlie through a research paper using William Griswold's eight questions ("How to Read an
   Engineering Research Paper"): motivation, proposed solution, evaluation, analysis, contributions,
   future directions, open questions, take-away. Answers ONE question at a time and waits for Charlie
-  to say "ok" before moving to the next. Logs each paper (title, link, a ~250-word plain-English
-  abstract) in Charlie's "Paper reading" Google Doc, and adds short bullet notes there whenever
+  to say "ok" before moving to the next. Logs each paper (title, link, a ~100-word plain-English
+  abstract) in Charlie's "Paper reading" Google Doc, and adds short numbered notes there whenever
   Charlie says "notes: ...". Use when Charlie invokes /read-paper or asks for help reading,
   understanding or digesting a paper. Takes a PDF path, an arXiv/URL link, or pasted text.
 ---
@@ -41,34 +41,45 @@ available, say so and give Charlie the text to paste; don't skip this silently.
 (match an arXiv id across `/abs/`, `/pdf/` and `/html/` links, ignoring version suffixes like `v4`).
 If it's there, skip adding it: don't rewrite or duplicate the entry.
 
-**If it's new, append an entry at the bottom** of the doc, in this shape:
+**If it's new, append an entry at the bottom** of the doc. Charlie set the layout; copy it exactly.
+Every paragraph is **Normal text** (no headings), with no extra paragraph spacing:
 
-- **Heading 1**: the paper's title, linked to the paper (prefer the `arxiv.org/abs/<id>` page).
-- **Normal text**: the link itself, as a link.
-- **Heading 2**: `Abstract (in my words)`
-- **Normal text**: a ~250-word personal abstract in plain English. Write it in your own words, not a
-  copy or paraphrase of the paper's abstract. Cover the problem, the idea, how it's tested, the key
-  numbers, and the main limit, and show how they connect. Aim for 230 to 270 words.
+```
+Interaction-as-a-Judge          <- the paper's title: bold, underlined, blue (rgb 0.067/0.333/0.8),
+                                   linked to the paper (prefer arxiv.org/abs/<id>). No separate link line.
+Abstract                        <- plain label
+<~100-word abstract>            <- one plain paragraph
+                                <- one empty paragraph
+Notes                           <- plain label
+                                <- one empty paragraph (separates this entry from the next one)
+```
 
-Give the new normal-text paragraphs about 8pt of space below (`spaceBelow`), as the existing entries
-do. Use the doc's heading styles, never bold body text as a heading. Read the doc back afterward and
-check the entry.
+- The abstract is about **100 words** (90 to 110), in plain English and in your own words, not a copy
+  or paraphrase of the paper's abstract. Cover the problem, the idea, how it's tested and the key
+  numbers in a few sentences.
+- If the doc's existing entries look different from this (Charlie may restyle them), match the most
+  recent entry instead of this template.
+- After inserting, set the title's text style (bold, underline, color, link) on the title only, and
+  reset any bold/link the new paragraphs picked up from the paragraph before them. Read the doc back
+  and check the entry.
 
 ## Notes during the session
 
 At any point Charlie may say something like `notes: we can use this dataset for mybench`. When that
 happens:
 
-- Add it under a **Heading 2** `Notes` inside **this paper's entry**: after the abstract and before
-  the next paper's Heading 1, or at the end of the doc if this is the last entry. Create the heading
-  the first time; after that, append to the same list.
-- Each note is one or more **short, simple bullets** (real Docs bullets via `createParagraphBullets`,
-  never typed "-" or "•"). One idea per bullet, about 15 words or fewer.
+- Add it to the **numbered list** (`NUMBERED_DECIMAL_ALPHA_ROMAN`: 1., 2., ...) right under this
+  paper's `Notes` label. Append to the existing list so the numbering continues. If the list still
+  holds placeholder items (`XXX`), replace the first placeholder with the note and delete the
+  leftover placeholders.
+- Each note is one or more **short, simple items** (real Docs list items via
+  `createParagraphBullets`, never typed "1." or "-"). One idea per item, about 15 words or fewer.
 - If the note is terse or abstract ("dataset 1, mybench"), rewrite it in plain language using what
   you both know from the paper and the conversation, e.g. "Use ArenaWebdevCorrectness (game bugs
   taken from user complaints) to test MyBench." Keep Charlie's meaning; don't add new ideas or
   opinions. If you can't tell what the note means, ask before writing it.
-- Reply with one line showing the bullet(s) you added, then **carry on with the current question**.
+- Keep the empty paragraph after the list, so entries stay separated.
+- Reply with one line showing the item(s) you added, then **carry on with the current question**.
   A note is not an "ok": don't move to the next question. Re-show the "Next:" line.
 
 ## The core rule: one question per turn
