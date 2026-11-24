@@ -47,8 +47,7 @@ Every paragraph is **Normal text** (no headings), with no extra paragraph spacin
 ```
 Interaction-as-a-Judge          <- the paper's title: bold, underlined, blue (rgb 0.067/0.333/0.8),
                                    linked to the paper (prefer arxiv.org/abs/<id>). No separate link line.
-Abstract                        <- plain label
-<~100-word abstract>            <- one plain paragraph
+<~100-word abstract>            <- one plain paragraph, right under the title (no "Abstract" label)
                                 <- one empty paragraph
 Notes                           <- plain label
                                 <- one empty paragraph (separates this entry from the next one)
