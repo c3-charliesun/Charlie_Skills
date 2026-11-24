@@ -4,7 +4,9 @@ description: >-
   Walk Charlie through a research paper using William Griswold's eight questions ("How to Read an
   Engineering Research Paper"): motivation, proposed solution, evaluation, analysis, contributions,
   future directions, open questions, take-away. Answers ONE question at a time and waits for Charlie
-  to say "ok" before moving to the next. Use when Charlie invokes /read-paper or asks for help reading,
+  to say "ok" before moving to the next. Logs each paper (title, link, a ~250-word plain-English
+  abstract) in Charlie's "Paper reading" Google Doc, and adds short bullet notes there whenever
+  Charlie says "notes: ...". Use when Charlie invokes /read-paper or asks for help reading,
   understanding or digesting a paper. Takes a PDF path, an arXiv/URL link, or pasted text.
 ---
 
@@ -17,9 +19,57 @@ Based on William G. Griswold, "How to Read an Engineering Research Paper"
 
 - If no paper came with the invocation, ask for one (PDF path, URL, arXiv id, or pasted text) and stop.
 - Read the **whole** paper before answering anything. For a PDF, read every page (in chunks if long).
-  For arXiv, prefer the PDF or HTML full text, not just the abstract page.
-- Then send one short line: the paper's title and authors, and "Ready. Say ok to start with Question 1."
-  Do not answer any question yet.
+  For arXiv, prefer the PDF or HTML full text, not just the abstract page. If the PDF can't be read
+  locally (no `pdftoppm`), the arXiv HTML version (`https://arxiv.org/html/<id>`) works. When turning
+  HTML into text, keep each `<math>` tag's `alttext`: many of the numbers live there.
+- Then add the paper to the notes doc (Step 1) **before** the first "ok".
+- Then send one short line: the paper's title and authors, a note that it's in the notes doc (or was
+  already there), and "Ready. Say ok to start with Question 1." Do not answer any question yet.
+
+## Step 1: the notes doc
+
+Charlie's notes live in one Google Doc, **Paper reading**:
+https://docs.google.com/document/d/1lcNxEaYRZzjpj9AMNpLo9Sog_AzfBrjs3cw8Epm8pUQ/edit (tab `t.0`).
+
+Before the first edit in a session, load the `anthropic-skills:google-workspace` skill and its
+`references/docs.md`, and follow them (read before every write, `requiredRevisionId` on every
+batch, highest index first). Tools: Google Docs `read_doc` / `update_doc`, Google Drive
+`read_file_content` (with `includeComments: true`) to check content. If those connectors aren't
+available, say so and give Charlie the text to paste; don't skip this silently.
+
+**Check whether the paper is already there.** Read the doc and look for the paper's title or link
+(match an arXiv id across `/abs/`, `/pdf/` and `/html/` links, ignoring version suffixes like `v4`).
+If it's there, skip adding it: don't rewrite or duplicate the entry.
+
+**If it's new, append an entry at the bottom** of the doc, in this shape:
+
+- **Heading 1**: the paper's title, linked to the paper (prefer the `arxiv.org/abs/<id>` page).
+- **Normal text**: the link itself, as a link.
+- **Heading 2**: `Abstract (in my words)`
+- **Normal text**: a ~250-word personal abstract in plain English. Write it in your own words, not a
+  copy or paraphrase of the paper's abstract. Cover the problem, the idea, how it's tested, the key
+  numbers, and the main limit, and show how they connect. Aim for 230 to 270 words.
+
+Give the new normal-text paragraphs about 8pt of space below (`spaceBelow`), as the existing entries
+do. Use the doc's heading styles, never bold body text as a heading. Read the doc back afterward and
+check the entry.
+
+## Notes during the session
+
+At any point Charlie may say something like `notes: we can use this dataset for mybench`. When that
+happens:
+
+- Add it under a **Heading 2** `Notes` inside **this paper's entry**: after the abstract and before
+  the next paper's Heading 1, or at the end of the doc if this is the last entry. Create the heading
+  the first time; after that, append to the same list.
+- Each note is one or more **short, simple bullets** (real Docs bullets via `createParagraphBullets`,
+  never typed "-" or "•"). One idea per bullet, about 15 words or fewer.
+- If the note is terse or abstract ("dataset 1, mybench"), rewrite it in plain language using what
+  you both know from the paper and the conversation, e.g. "Use ArenaWebdevCorrectness (game bugs
+  taken from user complaints) to test MyBench." Keep Charlie's meaning; don't add new ideas or
+  opinions. If you can't tell what the note means, ask before writing it.
+- Reply with one line showing the bullet(s) you added, then **carry on with the current question**.
+  A note is not an "ok": don't move to the next question. Re-show the "Next:" line.
 
 ## The core rule: one question per turn
 
@@ -87,5 +137,5 @@ Based on William G. Griswold, "How to Read an Engineering Research Paper"
 
 ## After Q8
 
-Offer, in one line, any of: a ~250-word personal abstract in plain English (not a copy of the
-paper's abstract), how this paper relates to others Charlie has read, or a second pass on any question.
+Offer, in one line, any of: how this paper relates to others in the notes doc, or a second pass on
+any question.
